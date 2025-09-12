@@ -12,6 +12,14 @@ class TenancyConfig
         return config('tenancy.database.prefix', 'tenant_');
     }
 
+    public static function getDatabaseNaming(): array
+    {
+        return config('tenancy.database.naming', [
+            'strategy' => 'prefix',
+            'separator' => '_',
+        ]);
+    }
+
     /**
      * Get central database connection name
      */
@@ -80,7 +88,7 @@ class TenancyConfig
      */
     public static function getResolutionHeader(): string
     {
-        return config('tenancy.resolution.header', 'X-Tenant-ID');
+        return config('tenancy.identification.header_name', 'X-Tenant-ID');
     }
 
     /**
@@ -144,6 +152,6 @@ class TenancyConfig
      */
     public static function getExcludedSubdomains(): array
     {
-        return config('tenancy.identification.strategies.subdomain.exclude_subdomains', ['www', 'api', 'admin', 'app']);
+        return config('tenancy.identification.excluded_subdomains', ['www', 'api', 'admin']);
     }
 }

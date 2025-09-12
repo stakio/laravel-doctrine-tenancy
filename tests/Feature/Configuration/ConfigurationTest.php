@@ -14,7 +14,7 @@ class ConfigurationTest extends TestCase
     {
         $this->assertTrue(Config::has('tenancy'));
         $this->assertTrue(Config::get('tenancy.enabled'));
-        $this->assertEquals('X-Tenant-ID', Config::get('tenancy.identification.strategies.header.header_name'));
+        $this->assertEquals('X-Tenant-ID', Config::get('tenancy.identification.header_name'));
     }
 
     #[Test]
@@ -41,7 +41,7 @@ class ConfigurationTest extends TestCase
     public function it_has_correct_excluded_subdomains()
     {
         $excluded = TenancyConfig::getExcludedSubdomains();
-        $expected = ['www', 'api', 'admin', 'app'];
+        $expected = ['www', 'api', 'admin'];
         
         $this->assertEquals($expected, $excluded);
     }

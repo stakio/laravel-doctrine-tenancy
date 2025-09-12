@@ -1,14 +1,25 @@
-/vendor/
-/node_modules/
-/.idea/
-/.vscode/
-/.env
-/.env.local
-/.env.*.local
-/coverage/
-/.phpunit.result.cache
-/phpunit.xml
-/.php_cs.cache
-/.php_cs.dist
-/.php_cs
-/composer.lock
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PHP
+vendor/
+composer.lock
+.phpunit.result.cache
+
+# Testing
+.phpunit.cache/
+.phpunit.result.cache
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
