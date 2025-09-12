@@ -2,7 +2,7 @@
     "name": "doctrine-tenancy/laravel",
     "description": "A comprehensive multi-tenancy package for Laravel applications using Doctrine ORM",
     "type": "library",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "keywords": ["laravel", "doctrine", "multi-tenancy", "tenancy", "orm", "database", "saas"],
     "license": "MIT",
     "homepage": "https://github.com/stakio/laravel-doctrine-tenancy",
