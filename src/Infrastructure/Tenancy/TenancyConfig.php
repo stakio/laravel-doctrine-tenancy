@@ -1,0 +1,105 @@
+<?php
+
+namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy;
+
+class TenancyConfig
+{
+    /**
+     * Get tenant database prefix
+     */
+    public static function getDatabasePrefix(): string
+    {
+        return config('tenancy.database.prefix', 'tenant_');
+    }
+
+    /**
+     * Get central database connection name
+     */
+    public static function getCentralConnection(): string
+    {
+        return config('tenancy.database.central_connection') ?? config('database.default', 'mysql');
+    }
+
+    /**
+     * Check if auto-creation of tenant databases is enabled
+     */
+    public static function isAutoCreateEnabled(): bool
+    {
+        return config('tenancy.database.auto_create', false);
+    }
+
+    /**
+     * Get entity routing configuration
+     */
+    public static function getEntityRouting(): array
+    {
+        return [
+            'central' => config('tenancy.entity_routing.central', []),
+            'tenant' => config('tenancy.entity_routing.tenant', []),
+        ];
+    }
+
+    /**
+     * Get tenant resolution header name
+     */
+    public static function getResolutionHeader(): string
+    {
+        return config('tenancy.resolution.header', 'X-Tenant-ID');
+    }
+
+    /**
+     * Get original database default connection
+     */
+    public static function getOriginalDatabaseDefault(): string
+    {
+        return config('tenancy.original_database_default', 'mysql');
+    }
+
+    /**
+     * Get default tenant seeder class
+     */
+    public static function getDefaultTenantSeeder(): string
+    {
+        return config('tenancy.seeders.default_tenant_seeder', 'TenantDatabaseSeeder');
+    }
+
+    /**
+     * Get tenant migrations path
+     */
+    public static function getTenantMigrationsPath(): string
+    {
+        return config('tenancy.migrations.tenant_path', 'database/migrations/tenant');
+    }
+
+    /**
+     * Get tenant seeders path
+     */
+    public static function getTenantSeedersPath(): string
+    {
+        return config('tenancy.seeders.tenant_path', 'database/seeders/tenant');
+    }
+
+    /**
+     * Check if tenancy is enabled
+     */
+    public static function isEnabled(): bool
+    {
+        return config('tenancy.enabled', true);
+    }
+
+    /**
+     * Get tenant cache prefix
+     */
+    public static function getCachePrefix(): string
+    {
+        return config('tenancy.cache.prefix', 'tenant_');
+    }
+
+    /**
+     * Get tenant cache TTL
+     */
+    public static function getCacheTtl(): int
+    {
+        return config('tenancy.cache.ttl', 3600);
+    }
+}

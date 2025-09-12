@@ -1,0 +1,53 @@
+{
+    "name": "laravel-doctrine/tenancy",
+    "description": "A comprehensive multi-tenancy package for Laravel applications using Doctrine ORM",
+    "type": "library",
+    "version": "1.0.0",
+    "keywords": ["laravel", "doctrine", "multi-tenancy", "tenancy", "orm", "database", "saas"],
+    "license": "MIT",
+    "homepage": "https://github.com/laravel-doctrine/tenancy",
+    "support": {
+        "issues": "https://github.com/laravel-doctrine/tenancy/issues",
+        "source": "https://github.com/laravel-doctrine/tenancy"
+    },
+    "authors": [
+        {
+            "name": "Laravel Doctrine Tenancy",
+            "email": "packages@laravel-doctrine.org"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "doctrine/orm": "^3.0",
+        "doctrine/dbal": "^4.0",
+        "ramsey/uuid": "^4.7",
+        "ramsey/uuid-doctrine": "^2.0",
+        "symfony/console": "^7.0",
+        "symfony/cache": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0",
+        "mockery/mockery": "^1.6",
+        "orchestra/testbench": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "LaravelDoctrine\\Tenancy\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaravelDoctrine\\Tenancy\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LaravelDoctrine\\Tenancy\\Infrastructure\\Providers\\TenancyServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
