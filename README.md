@@ -16,7 +16,7 @@ A comprehensive multi-tenancy package for Laravel applications using Doctrine OR
 ## Installation
 
 ```bash
-composer require laravel-doctrine/tenancy
+composer require doctrine-tenancy/laravel
 ```
 
 ## Configuration
