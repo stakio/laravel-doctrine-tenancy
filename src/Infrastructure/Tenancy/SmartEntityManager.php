@@ -31,7 +31,7 @@ class SmartEntityManager implements EntityManagerInterface
      */
     private function getEntityManagerForClassName(string $className): EntityManager
     {
-        $routing = config('tenancy.entity_routing', ['central' => [], 'tenant' => []]);
+        $routing = \LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenancyConfig::getEntityRouting();
         $centralEntities = $routing['central'] ?? [];
         $tenantEntities = $routing['tenant'] ?? [];
 

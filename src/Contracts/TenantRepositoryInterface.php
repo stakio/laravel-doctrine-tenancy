@@ -2,15 +2,13 @@
 
 namespace LaravelDoctrine\Tenancy\Contracts;
 
-use LaravelDoctrine\Tenancy\Domain\Tenant;
-
 interface TenantRepositoryInterface
 {
-    public function findById(string $id): ?Tenant;
+    public function findById(string $id): ?TenantEntityInterface;
 
-    public function findByDomain(string $domain): ?Tenant;
+    public function findByDomain(string $domain): ?TenantEntityInterface;
 
-    public function save(Tenant $tenant): void;
+    public function save(TenantEntityInterface $tenant): void;
 
-    public function delete(Tenant $tenant): void;
+    public function delete(TenantEntityInterface $tenant): void;
 }

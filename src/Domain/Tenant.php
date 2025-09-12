@@ -3,16 +3,19 @@
 namespace LaravelDoctrine\Tenancy\Domain;
 
 use Doctrine\ORM\Mapping as ORM;
+use LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface;
+use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
 use LaravelDoctrine\Tenancy\Domain\Events\TenantCreated;
 use LaravelDoctrine\Tenancy\Domain\Events\TenantUpdated;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantName;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\Domain;
+use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
 use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'tenants')]
 #[ORM\HasLifecycleCallbacks]
-class Tenant
+class Tenant implements TenantEntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
@@ -113,6 +116,11 @@ class Tenant
     public function getDeactivatedAt(): ?\DateTimeImmutable
     {
         return $this->deactivatedAt;
+    }
+
+    public function toIdentifier(): TenantIdentifier
+    {
+        return new TenantId($this->id);
     }
 
     private function recordEvent(object $event): void

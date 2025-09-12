@@ -2,11 +2,11 @@
 
 namespace LaravelDoctrine\Tenancy\Domain\Events;
 
-use LaravelDoctrine\Tenancy\Domain\Tenant;
+use LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface;
 
 class TenantDeleted
 {
     public function __construct(
-        public readonly Tenant $tenant
+        public readonly TenantEntityInterface $tenant
     ) {}
 }

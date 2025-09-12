@@ -10,6 +10,7 @@ A comprehensive multi-tenancy package for Laravel applications using Doctrine OR
 - **Auto-creation** of tenant databases
 - **Migration and seeding** support for tenant databases
 - **Multiple tenant resolution strategies** (header, subdomain)
+- **Custom tenant entities** - Use your own tenant entity with additional fields and business logic
 - **Comprehensive configuration** system
 - **Laravel integration** with service providers and middleware
 
@@ -108,6 +109,43 @@ if (Tenancy::hasCurrentTenant()) {
     // Tenant-specific logic
 }
 ```
+
+### Custom Tenant Entities
+
+You can use your own custom tenant entity instead of the default one. This allows you to add custom fields, methods, and business logic while maintaining compatibility with the tenancy system.
+
+1. Create a custom tenant entity implementing `TenantEntityInterface`:
+
+```php
+use LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface;
+
+class CustomTenantEntity implements TenantEntityInterface
+{
+    // Implement all required interface methods
+    // Add your custom fields and methods
+}
+```
+
+2. Configure your custom entity in `config/tenancy.php`:
+
+```php
+'tenant_entity' => \App\Domain\Tenants\CustomTenantEntity::class,
+```
+
+3. Use the interface in your code:
+
+```php
+use LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface;
+
+class TenantService
+{
+    public function __construct(
+        private TenantEntityInterface $tenantEntity
+    ) {}
+}
+```
+
+See the [Custom Tenant Entities documentation](docs/custom-tenant-entities.md) for detailed instructions and examples.
 
 ## Configuration Options
 

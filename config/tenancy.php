@@ -15,6 +15,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Tenant Entity Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure the tenant entity class to use. You can use the default
+    | LaravelDoctrine\Tenancy\Domain\Tenant class or provide your own
+    | custom tenant entity that implements TenantEntityInterface.
+    |
+    */
+    'tenant_entity' => env('TENANT_ENTITY_CLASS', \LaravelDoctrine\Tenancy\Domain\Tenant::class),
+
+    /*
+    |--------------------------------------------------------------------------
     | Tenant Identification
     |--------------------------------------------------------------------------
     |
@@ -46,11 +58,13 @@ return [
     */
     'entity_routing' => [
         'central' => [
-            'LaravelDoctrine\Tenancy\Domain\Tenant',
+            // The tenant entity is automatically added to central entities
             // Add other central entities here
+            // Example: 'App\Domain\User\User',
         ],
         'tenant' => [
             // Add tenant entities here
+            // Example: 'App\Domain\Project\Project',
         ],
     ],
 

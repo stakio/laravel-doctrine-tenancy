@@ -33,10 +33,26 @@ class TenancyConfig
      */
     public static function getEntityRouting(): array
     {
+        $centralEntities = config('tenancy.entity_routing.central', []);
+        $tenantEntity = self::getTenantEntityClass();
+        
+        // Automatically add the tenant entity to central entities if not already present
+        if (!in_array($tenantEntity, $centralEntities)) {
+            $centralEntities[] = $tenantEntity;
+        }
+        
         return [
-            'central' => config('tenancy.entity_routing.central', []),
+            'central' => $centralEntities,
             'tenant' => config('tenancy.entity_routing.tenant', []),
         ];
+    }
+
+    /**
+     * Get the configured tenant entity class
+     */
+    public static function getTenantEntityClass(): string
+    {
+        return config('tenancy.tenant_entity', \LaravelDoctrine\Tenancy\Domain\Tenant::class);
     }
 
     /**

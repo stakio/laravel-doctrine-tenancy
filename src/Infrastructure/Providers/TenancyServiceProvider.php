@@ -3,9 +3,11 @@
 namespace LaravelDoctrine\Tenancy\Infrastructure\Providers;
 
 use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
+use LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenantContext;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\SmartEntityManager;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Middleware\ResolveTenantMiddleware;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenancyConfig;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Support\ServiceProvider;
 
