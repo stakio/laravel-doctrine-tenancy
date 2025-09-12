@@ -41,6 +41,9 @@
             "LaravelDoctrine\\Tenancy\\Tests\\": "tests/"
         }
     },
+    "scripts": {
+        "test": "phpunit"
+    },
     "extra": {
         "laravel": {
             "providers": [

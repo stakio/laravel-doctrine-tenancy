@@ -6,27 +6,34 @@ use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * Tenant Created Event
+ * Tenant Creation Failed Event
  * 
- * Represents the successful creation of a tenant.
+ * Represents a failed attempt to create a tenant.
  * 
  * @package LaravelDoctrine\Tenancy\Domain\Events
  * @author Laravel Doctrine Tenancy Team
  * @since 1.2.0
  */
-class TenantCreated extends TenantEvent
+class TenantCreationFailed extends TenantEvent
 {
     public function __construct(
         UuidInterface $eventId,
         TenantId $tenantId,
+        string $reason,
         array $metadata = []
     ) {
+        $metadata['failure_reason'] = $reason;
         parent::__construct(
             $eventId,
             $tenantId,
-            'tenant_created',
-            'completed',
+            'tenant_creation_failed',
+            'failed',
             $metadata
         );
+    }
+
+    public function getFailureReason(): string
+    {
+        return $this->getMetadata()['failure_reason'] ?? 'Unknown error';
     }
 }

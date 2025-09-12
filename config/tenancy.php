@@ -27,6 +27,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Domain Entity Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure the domain entity class to use. You can use the default
+    | LaravelDoctrine\Tenancy\Domain\DomainEntity class or provide your own
+    | custom domain entity that implements DomainEntityInterface.
+    |
+    */
+    'domain_entity' => env('DOMAIN_ENTITY_CLASS', \LaravelDoctrine\Tenancy\Domain\DomainEntity::class),
+
+    /*
+    |--------------------------------------------------------------------------
     | Tenant Identification
     |--------------------------------------------------------------------------
     |
@@ -58,7 +70,7 @@ return [
     */
     'entity_routing' => [
         'central' => [
-            // The tenant entity is automatically added to central entities
+            // The tenant entity, domain entity, and event log are automatically added to central entities
             // Add other central entities here
             // Example: 'App\Domain\User\User',
         ],

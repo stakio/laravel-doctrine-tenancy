@@ -1,0 +1,15 @@
+{
+  "name": "laravel-doctrine-tenancy-package",
+  "version": "1.2.0",
+  "description": "A comprehensive multi-tenancy package for Laravel applications using Doctrine ORM",
+  "scripts": {
+    "test": "docker compose run --rm app composer test",
+    "test:file": "docker compose run --rm app ./vendor/bin/phpunit",
+    "build": "docker compose build",
+    "clean": "docker compose down --volumes --remove-orphans && docker system prune -f",
+    "shell": "docker compose run --rm app bash"
+  },
+  "keywords": ["laravel", "doctrine", "multi-tenancy", "tenancy", "orm", "database", "saas"],
+  "author": "Doctrine Tenancy",
+  "license": "MIT"
+}

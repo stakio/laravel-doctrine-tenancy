@@ -9,23 +9,12 @@ use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantName;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\Domain;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenancyConfig;
-use Orchestra\Testbench\TestCase;
+use LaravelDoctrine\Tenancy\Tests\TestCase;
 use Ramsey\Uuid\Uuid;
 
 class TenantEntityInterfaceTest extends TestCase
 {
-    protected function getPackageProviders($app)
-    {
-        return [
-            \LaravelDoctrine\Tenancy\Infrastructure\Providers\TenancyServiceProvider::class,
-        ];
-    }
-
-    protected function getEnvironmentSetUp($app)
-    {
-        $app['config']->set('tenancy.enabled', true);
-        $app['config']->set('tenancy.tenant_entity', Tenant::class);
-    }
+    // Configuration is now handled by the base TestCase class
 
     public function test_default_tenant_implements_interface()
     {

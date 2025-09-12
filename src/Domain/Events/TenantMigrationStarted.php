@@ -6,27 +6,34 @@ use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * Tenant Created Event
+ * Tenant Migration Started Event
  * 
- * Represents the successful creation of a tenant.
+ * Represents the start of a tenant database migration.
  * 
  * @package LaravelDoctrine\Tenancy\Domain\Events
  * @author Laravel Doctrine Tenancy Team
  * @since 1.2.0
  */
-class TenantCreated extends TenantEvent
+class TenantMigrationStarted extends TenantEvent
 {
     public function __construct(
         UuidInterface $eventId,
         TenantId $tenantId,
+        string $migrationVersion,
         array $metadata = []
     ) {
+        $metadata['migration_version'] = $migrationVersion;
         parent::__construct(
             $eventId,
             $tenantId,
-            'tenant_created',
-            'completed',
+            'tenant_migration_started',
+            'in_progress',
             $metadata
         );
+    }
+
+    public function getMigrationVersion(): string
+    {
+        return $this->getMetadata()['migration_version'] ?? 'unknown';
     }
 }

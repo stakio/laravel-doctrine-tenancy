@@ -35,10 +35,22 @@ class TenancyConfig
     {
         $centralEntities = config('tenancy.entity_routing.central', []);
         $tenantEntity = self::getTenantEntityClass();
+        $domainEntity = self::getDomainEntityClass();
+        $eventLogEntity = \LaravelDoctrine\Tenancy\Domain\EventTracking\TenantEventLog::class;
         
         // Automatically add the tenant entity to central entities if not already present
         if (!in_array($tenantEntity, $centralEntities)) {
             $centralEntities[] = $tenantEntity;
+        }
+        
+        // Automatically add the domain entity to central entities if not already present
+        if (!in_array($domainEntity, $centralEntities)) {
+            $centralEntities[] = $domainEntity;
+        }
+        
+        // Automatically add the event log entity to central entities if not already present
+        if (!in_array($eventLogEntity, $centralEntities)) {
+            $centralEntities[] = $eventLogEntity;
         }
         
         return [
@@ -52,7 +64,15 @@ class TenancyConfig
      */
     public static function getTenantEntityClass(): string
     {
-        return config('tenancy.tenant_entity', \LaravelDoctrine\Tenancy\Domain\Tenant::class);
+        return config('tenancy.tenant_entity') ?? \LaravelDoctrine\Tenancy\Domain\Tenant::class;
+    }
+
+    /**
+     * Get the configured domain entity class
+     */
+    public static function getDomainEntityClass(): string
+    {
+        return config('tenancy.domain_entity') ?? \LaravelDoctrine\Tenancy\Domain\DomainEntity::class;
     }
 
     /**
@@ -117,5 +137,13 @@ class TenancyConfig
     public static function getCacheTtl(): int
     {
         return config('tenancy.cache.ttl', 3600);
+    }
+
+    /**
+     * Get excluded subdomains for tenant resolution
+     */
+    public static function getExcludedSubdomains(): array
+    {
+        return config('tenancy.identification.strategies.subdomain.exclude_subdomains', ['www', 'api', 'admin', 'app']);
     }
 }

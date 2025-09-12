@@ -3,27 +3,51 @@
 namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy;
 
 use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenantException;
-use Doctrine\DBAL\Exception as DBALException;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\EntityRouting\EntityRouter;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Database\DatabaseConnectionManager;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Logging\TenancyLogger;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Illuminate\Support\Facades\Log;
 
 /**
- * A simplified facade EntityManager that routes operations to central or tenant EntityManager
- * based on entity type, using singletons from DoctrineServiceProvider.
+ * Smart Entity Manager
+ * 
+ * A sophisticated facade EntityManager that automatically routes operations to the 
+ * appropriate EntityManager (central or tenant) based on entity type and tenant context.
+ * 
+ * This class implements the EntityManagerInterface and provides transparent routing
+ * of database operations, ensuring that:
+ * - Central entities (like Tenant, DomainEntity) are always routed to the central database
+ * - Tenant entities are routed to the current tenant's database when a tenant context exists
+ * - Database connections are automatically managed and switched as needed
+ * - Transaction handling works across both central and tenant databases
+ * 
+ * Key Features:
+ * - Automatic entity routing based on configuration
+ * - Intelligent database connection management
+ * - Cross-database transaction support
+ * - Performance monitoring and logging
+ * - Error handling and recovery
+ * 
+ * @package LaravelDoctrine\Tenancy\Infrastructure\Tenancy
+ * @author Laravel Doctrine Tenancy Team
+ * @since 1.0.0
+ * @implements EntityManagerInterface
  */
 class SmartEntityManager implements EntityManagerInterface
 {
     private EntityManager $centralEntityManager;
-
     private EntityManager $tenantEntityManager;
+    private EntityRouter $entityRouter;
+    private DatabaseConnectionManager $connectionManager;
 
     public function __construct(
         private TenantContextInterface $tenantContext
     ) {
         $this->centralEntityManager = app('doctrine.central.entity_manager');
         $this->tenantEntityManager = app('doctrine.tenant.entity_manager');
+        $this->entityRouter = new EntityRouter($tenantContext);
+        $this->connectionManager = new DatabaseConnectionManager($tenantContext);
     }
 
     /**
@@ -31,24 +55,18 @@ class SmartEntityManager implements EntityManagerInterface
      */
     private function getEntityManagerForClassName(string $className): EntityManager
     {
-        $routing = \LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenancyConfig::getEntityRouting();
-        $centralEntities = $routing['central'] ?? [];
-        $tenantEntities = $routing['tenant'] ?? [];
+        $entityManager = $this->entityRouter->getEntityManagerForClass(
+            $className,
+            $this->centralEntityManager,
+            $this->tenantEntityManager
+        );
 
-        if (in_array($className, $tenantEntities)) {
-            if (!$this->tenantContext->hasCurrentTenant()) {
-                throw new \RuntimeException('No tenant context for entity: ' . $className);
-            }
-            $this->ensureTenantDatabaseConnection();
-
-            return $this->tenantEntityManager;
+        // Ensure tenant connection if needed
+        if ($this->entityRouter->isTenantEntity($className)) {
+            $this->connectionManager->ensureTenantConnection();
         }
 
-        if (!in_array($className, $centralEntities)) {
-            Log::warning("Unknown entity {$className} not in tenancy.entity_routing; defaulting to central EM");
-        }
-
-        return $this->centralEntityManager;
+        return $entityManager;
     }
 
     /**
@@ -60,37 +78,11 @@ class SmartEntityManager implements EntityManagerInterface
     }
 
     /**
-     * Ensure tenant database connection is established with auto-creation if needed.
-     */
-    private function ensureTenantDatabaseConnection(): void
-    {
-        try {
-            $this->tenantEntityManager->getConnection()->switchToTenant($this->tenantContext->getCurrentTenant());
-            // TenantSwitched::dispatch($this->tenantContext->getCurrentTenant());
-        } catch (DBALException $e) {
-            if (str_contains($e->getMessage(), 'Unknown database') && config('tenancy.database.auto_create')) {
-                app(\LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Database\TenantDatabaseManager::class)
-                    ->createTenantDatabase($this->tenantContext->getCurrentTenant());
-                $this->tenantEntityManager->getConnection()->switchToTenant($this->tenantContext->getCurrentTenant());
-                // TenantSwitched::dispatch($this->tenantContext->getCurrentTenant());
-            } else {
-                Log::error('Failed to switch to tenant DB', [
-                    'error' => $e->getMessage(),
-                    'tenant_id' => $this->tenantContext->getCurrentTenant()->value(),
-                ]);
-                throw new TenantException('Tenant database not found.');
-            }
-        }
-    }
-
-    /**
      * Reset tenant connection to central database.
      */
     public function resetConnection(): void
     {
-        if ($this->tenantContext->hasCurrentTenant()) {
-            $this->tenantEntityManager->getConnection()->switchToCentral();
-        }
+        $this->connectionManager->resetToCentral();
     }
 
     /**
@@ -99,8 +91,7 @@ class SmartEntityManager implements EntityManagerInterface
     private function executeOnTenantIfAvailable(callable $operation, $defaultValue = null)
     {
         if ($this->tenantContext->hasCurrentTenant()) {
-            $this->ensureTenantDatabaseConnection();
-
+            $this->connectionManager->ensureTenantConnection();
             return $operation($this->tenantEntityManager);
         }
 
@@ -114,7 +105,7 @@ class SmartEntityManager implements EntityManagerInterface
     {
         $centralOperation($this->centralEntityManager);
         if ($this->tenantContext->hasCurrentTenant()) {
-            $this->ensureTenantDatabaseConnection();
+            $this->connectionManager->ensureTenantConnection();
             $tenantOperation($this->tenantEntityManager);
         }
     }
@@ -186,35 +177,30 @@ class SmartEntityManager implements EntityManagerInterface
 
     public function wrapInTransaction(callable $func): mixed
     {
-        $result = null;
-        $centralActive = $this->centralEntityManager->getUnitOfWork()->size() > 0;
-        if ($centralActive) {
-            $this->centralEntityManager->beginTransaction();
-        }
-
+        $startTime = microtime(true);
+        
         try {
-            if ($this->tenantContext->hasCurrentTenant() && $this->tenantEntityManager->getUnitOfWork()->size() > 0) {
-                $this->ensureTenantDatabaseConnection();
+            $this->centralEntityManager->beginTransaction();
+            
+            if ($this->tenantContext->hasCurrentTenant()) {
+                $this->connectionManager->ensureTenantConnection();
                 $this->tenantEntityManager->beginTransaction();
-                try {
-                    $result = $func($this->centralEntityManager, $this->tenantEntityManager);
-                    $this->tenantEntityManager->commit();
-                } catch (\Exception $e) {
-                    $this->tenantEntityManager->rollback();
-                    throw $e;
-                }
-            } else {
-                $result = $func($this->centralEntityManager, null);
             }
 
-            if ($centralActive) {
-                $this->centralEntityManager->commit();
+            $result = $func($this->centralEntityManager, $this->tenantEntityManager);
+            
+            $this->centralEntityManager->commit();
+            if ($this->tenantContext->hasCurrentTenant()) {
+                $this->tenantEntityManager->commit();
             }
 
+            TenancyLogger::performanceMetric('transaction_wrap', microtime(true) - $startTime);
+            
             return $result;
         } catch (\Exception $e) {
-            if ($centralActive) {
-                $this->centralEntityManager->rollback();
+            $this->centralEntityManager->rollback();
+            if ($this->tenantContext->hasCurrentTenant()) {
+                $this->tenantEntityManager->rollback();
             }
             throw $e;
         } finally {
@@ -385,7 +371,10 @@ class SmartEntityManager implements EntityManagerInterface
 
     public function __call($method, $arguments)
     {
-        Log::warning("Unknown method {$method} called on SmartEntityManager; defaulting to central EM");
+        TenancyLogger::performanceMetric('unknown_method_call', 0, [
+            'method' => $method,
+            'arguments_count' => count($arguments)
+        ]);
 
         return $this->centralEntityManager->$method(...$arguments);
     }

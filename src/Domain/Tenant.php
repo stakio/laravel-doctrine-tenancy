@@ -47,7 +47,7 @@ class Tenant implements TenantEntityInterface
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
 
-        $this->recordEvent(new TenantCreated($this));
+        $this->recordEvent(new TenantCreated($this->id, $this->toIdentifier()));
     }
 
     public function getId(): UuidInterface

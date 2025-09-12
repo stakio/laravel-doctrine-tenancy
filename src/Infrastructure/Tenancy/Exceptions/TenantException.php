@@ -2,9 +2,7 @@
 
 namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions;
 
-use Exception;
-
-class TenantException extends Exception
+class TenantException extends TenancyException
 {
     public static function notFound(string $message = 'Tenant not found'): self
     {
