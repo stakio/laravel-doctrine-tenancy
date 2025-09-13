@@ -8,16 +8,28 @@ use Ramsey\Uuid\UuidInterface;
 
 interface DomainEntityInterface
 {
+    /**
+     * Get the domain's unique identifier.
+     */
     public function getId(): UuidInterface;
-    public function id(): UuidInterface;
+
+    /**
+     * Get the domain value object.
+     */
     public function domain(): Domain;
+
+    /**
+     * Get the associated tenant ID.
+     */
     public function tenantId(): TenantId;
+
+    /**
+     * Check if this is the primary domain for the tenant.
+     */
     public function isPrimary(): bool;
-    public function setPrimary(bool $primary): void;
+
+    /**
+     * Check if the domain is active.
+     */
     public function isActive(): bool;
-    public function activate(): void;
-    public function deactivate(): void;
-    public function getCreatedAt(): \DateTimeImmutable;
-    public function getUpdatedAt(): \DateTimeImmutable;
-    public function getDeactivatedAt(): ?\DateTimeImmutable;
 }

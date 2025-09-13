@@ -41,22 +41,19 @@ class DomainEntity implements DomainEntityInterface
         UuidInterface $id,
         Domain $domain,
         TenantId $tenantId,
-        bool $isPrimary = false
+        bool $isPrimary = false,
+        bool $isActive = true
     ) {
         $this->id = $id;
         $this->domain = $domain->value();
         $this->tenantId = $tenantId->value();
         $this->isPrimary = $isPrimary;
+        $this->isActive = $isActive;
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function getId(): UuidInterface
-    {
-        return $this->id;
-    }
-
-    public function id(): UuidInterface
     {
         return $this->id;
     }
@@ -76,43 +73,8 @@ class DomainEntity implements DomainEntityInterface
         return $this->isPrimary;
     }
 
-    public function setPrimary(bool $primary): void
-    {
-        $this->isPrimary = $primary;
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-
     public function isActive(): bool
     {
         return $this->isActive;
-    }
-
-    public function activate(): void
-    {
-        $this->isActive = true;
-        $this->deactivatedAt = null;
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    public function deactivate(): void
-    {
-        $this->isActive = false;
-        $this->deactivatedAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function getDeactivatedAt(): ?\DateTimeImmutable
-    {
-        return $this->deactivatedAt;
     }
 }

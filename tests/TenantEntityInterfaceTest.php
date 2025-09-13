@@ -21,7 +21,6 @@ class TenantEntityInterfaceTest extends TestCase
         $tenant = new Tenant(
             Uuid::uuid4(),
             new TenantName('Test Tenant'),
-            new Domain('test.example.com')
         );
 
         $this->assertInstanceOf(TenantEntityInterface::class, $tenant);
@@ -31,60 +30,19 @@ class TenantEntityInterfaceTest extends TestCase
     {
         $id = Uuid::uuid4();
         $name = new TenantName('Test Tenant');
-        $domain = new Domain('test.example.com');
         
-        $tenant = new Tenant($id, $name, $domain);
+        $tenant = new Tenant($id, $name);
 
         // Test core methods
         $this->assertEquals($id, $tenant->getId());
-        $this->assertEquals($id, $tenant->id());
         $this->assertEquals($name, $tenant->name());
-        $this->assertEquals($domain, $tenant->domain());
 
         // Test status methods
         $this->assertTrue($tenant->isActive());
-        $this->assertNull($tenant->getDeactivatedAt());
-
-        // Test deactivation
-        $tenant->deactivate();
-        $this->assertFalse($tenant->isActive());
-        $this->assertNotNull($tenant->getDeactivatedAt());
-
-        // Test reactivation
-        $tenant->activate();
-        $this->assertTrue($tenant->isActive());
-        $this->assertNull($tenant->getDeactivatedAt());
-
-        // Test timestamps
-        $this->assertInstanceOf(\DateTimeImmutable::class, $tenant->getCreatedAt());
-        $this->assertInstanceOf(\DateTimeImmutable::class, $tenant->getUpdatedAt());
-
         // Test identifier conversion
         $identifier = $tenant->toIdentifier();
         $this->assertInstanceOf(TenantIdentifier::class, $identifier);
         $this->assertEquals($id, $identifier->value());
-    }
-
-    public function test_tenant_update_methods()
-    {
-        $tenant = new Tenant(
-            Uuid::uuid4(),
-            new TenantName('Original Name'),
-            new Domain('original.example.com')
-        );
-
-        $originalUpdatedAt = $tenant->getUpdatedAt();
-
-        // Test name update
-        $newName = new TenantName('Updated Name');
-        $tenant->updateName($newName);
-        $this->assertEquals($newName, $tenant->name());
-        $this->assertGreaterThan($originalUpdatedAt, $tenant->getUpdatedAt());
-
-        // Test domain update
-        $newDomain = new Domain('updated.example.com');
-        $tenant->updateDomain($newDomain);
-        $this->assertEquals($newDomain, $tenant->domain());
     }
 
     public function test_tenancy_config_returns_tenant_entity_class()
@@ -121,7 +79,6 @@ class TenantEntityInterfaceTest extends TestCase
         $tenant = new Tenant(
             $id,
             new TenantName('Test Tenant'),
-            new Domain('test.example.com')
         );
 
         $identifier1 = $tenant->toIdentifier();
@@ -138,7 +95,6 @@ class TenantEntityInterfaceTest extends TestCase
         $tenant = new Tenant(
             Uuid::uuid4(),
             new TenantName('Test Tenant'),
-            new Domain('test.example.com')
         );
 
         // Mock repository that accepts TenantEntityInterface

@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('tenants', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->string('domain')->unique();
             $table->timestamp('deactivated_at')->nullable();
             $table->timestamps();
         });

@@ -32,7 +32,6 @@ trait TenancyTestHelpers
         $tenant = new Tenant(
             $tenantId,
             new TenantName($name),
-            new Domain($domain)
         );
         
         $this->entityManager->persist($tenant);
@@ -51,13 +50,10 @@ trait TenancyTestHelpers
         $domainEntity = new DomainEntity(
             Uuid::uuid4(),
             new Domain($domain),
-            $tenantId
+            $tenantId,
+            false, // isPrimary
+            $isActive
         );
-        
-        // Set active status after creation
-        if (!$isActive) {
-            $domainEntity->deactivate();
-        }
         
         $this->entityManager->persist($domainEntity);
         $this->entityManager->flush();
