@@ -9,6 +9,8 @@ A lightweight multi-tenancy package for Laravel applications using Doctrine ORM.
 - **Multiple resolution strategies** (header, domain)
 - **Custom tenant entities** support
 - **Event tracking** system
+- **Automatic database creation** and migration
+- **Configurable auto-setup** (can be disabled)
 - **Laravel 11.0+** and **12.0+** support
 
 ## Installation
@@ -33,14 +35,19 @@ php artisan migrate
 
 ```php
 // config/tenancy.php
-'entity_routing' => [
-    'central' => [
-        'App\Domain\User\User',
+    'entity_routing' => [
+        'central' => [
+            'App\Domain\User\User',
+        ],
+        'tenant' => [
+            'App\Domain\Project\Project',
+        ],
     ],
-    'tenant' => [
-        'App\Domain\Project\Project',
+
+    'database' => [
+        'auto_create' => true,  // Auto-create tenant databases
+        'auto_migrate' => true, // Auto-run migrations
     ],
-],
 ```
 
 ### 2. Add Middleware

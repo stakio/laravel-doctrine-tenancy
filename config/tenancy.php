@@ -20,6 +20,8 @@ return [
             'strategy' => env('TENANCY_NAMING_STRATEGY', 'prefix'),
             'separator' => env('TENANCY_NAMING_SEPARATOR', '_'),
         ],
+        'auto_create' => env('TENANCY_AUTO_CREATE_DATABASE', true),
+        'auto_migrate' => env('TENANCY_AUTO_MIGRATE_DATABASE', true),
     ],
 
     'entity_routing' => [

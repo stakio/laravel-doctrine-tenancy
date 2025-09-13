@@ -33,7 +33,15 @@ class TenancyConfig
      */
     public static function isAutoCreateEnabled(): bool
     {
-        return config('tenancy.database.auto_create', false);
+        return config('tenancy.database.auto_create', true);
+    }
+
+    /**
+     * Check if auto-migration of tenant databases is enabled
+     */
+    public static function isAutoMigrateEnabled(): bool
+    {
+        return config('tenancy.database.auto_migrate', true);
     }
 
     /**

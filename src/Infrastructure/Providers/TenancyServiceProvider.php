@@ -38,6 +38,9 @@ class TenancyServiceProvider extends ServiceProvider
         // Register tenant cache
         $this->app->singleton(TenantCache::class);
 
+        // Register tenant creation service
+        $this->app->singleton(\LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Services\TenantCreationService::class);
+
         // Register event tracking services
         $this->app->singleton(EventTracker::class, function ($app) {
             return new EventTracker($app->make(EntityManagerInterface::class));
