@@ -20,8 +20,6 @@ return [
             'strategy' => env('TENANCY_NAMING_STRATEGY', 'prefix'),
             'separator' => env('TENANCY_NAMING_SEPARATOR', '_'),
         ],
-        'auto_create' => env('TENANCY_AUTO_CREATE_DATABASE', true),
-        'auto_migrate' => env('TENANCY_AUTO_MIGRATE_DATABASE', true),
     ],
 
     'entity_routing' => [
@@ -33,14 +31,4 @@ return [
         ],
     ],
 
-    'caching' => [
-        'enabled' => env('TENANCY_CACHE_ENABLED', true),
-        'ttl' => env('TENANCY_CACHE_TTL', 3600),
-        'prefix' => env('TENANCY_CACHE_PREFIX', 'tenancy'),
-    ],
-
-    'logging' => [
-        'enabled' => env('TENANCY_LOGGING_ENABLED', true),
-        'channel' => env('TENANCY_LOG_CHANNEL', 'default'),
-    ],
 ];

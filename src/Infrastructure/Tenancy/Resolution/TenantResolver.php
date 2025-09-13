@@ -4,7 +4,6 @@ namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Resolution;
 
 use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Resolution\Contracts\TenantResolutionStrategy;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Logging\TenancyLogger;
 use Illuminate\Http\Request;
 
 class TenantResolver
@@ -33,10 +32,6 @@ class TenantResolver
             try {
                 $tenant = $strategy->resolve($request);
                 if ($tenant) {
-                    TenancyLogger::tenantResolved($tenant, get_class($strategy), [
-                        'strategy' => get_class($strategy),
-                        'tenant_id' => $tenant->value()
-                    ]);
                     return $tenant;
                 }
             } catch (\Exception $e) {
@@ -45,11 +40,6 @@ class TenantResolver
                     $e instanceof \LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenantResolutionException) {
                     throw $e;
                 }
-                
-                TenancyLogger::tenantResolutionFailed('Strategy failed to resolve tenant', [
-                    'strategy' => get_class($strategy),
-                    'error' => $e->getMessage()
-                ]);
                 // Continue to next strategy for other exceptions
             }
         }

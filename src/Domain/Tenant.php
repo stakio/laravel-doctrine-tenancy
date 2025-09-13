@@ -5,7 +5,6 @@ namespace LaravelDoctrine\Tenancy\Domain;
 use Doctrine\ORM\Mapping as ORM;
 use LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface;
 use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
-use LaravelDoctrine\Tenancy\Domain\Events\TenantCreated;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantName;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
 use Ramsey\Uuid\UuidInterface;
@@ -40,7 +39,6 @@ class Tenant implements TenantEntityInterface
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
 
-        $this->recordEvent(new TenantCreated($this->id, $this->toIdentifier()));
     }
 
     public function getId(): UuidInterface
@@ -48,28 +46,18 @@ class Tenant implements TenantEntityInterface
         return $this->id;
     }
 
-
     public function name(): TenantName
     {
         return new TenantName($this->name);
     }
-
-
 
     public function isActive(): bool
     {
         return $this->deactivatedAt === null;
     }
 
-
     public function toIdentifier(): TenantIdentifier
     {
         return new TenantId($this->id);
-    }
-
-    private function recordEvent(object $event): void
-    {
-        // This would typically dispatch events through Laravel's event system
-        // For now, we'll leave this as a placeholder
     }
 }

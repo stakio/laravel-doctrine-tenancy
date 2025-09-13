@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Artisan;
 class InstallTenancyCommand extends Command
 {
     protected $signature = 'tenancy:install 
-                            {--custom-entities : Skip tenant and domain migrations, keep only event logs}
                             {--force : Overwrite existing migrations}';
 
     protected $description = 'Install tenancy package with config and migrations';
@@ -48,34 +47,19 @@ class InstallTenancyCommand extends Command
 
     private function createMigrations(): void
     {
-        $customEntities = $this->option('custom-entities');
         $force = $this->option('force');
 
-        if ($customEntities) {
-            $this->info('Custom entities mode: Creating event logs migration only');
-            $migrations = [
-                'create_tenant_event_logs_table' => [
-                    'table' => 'tenant_event_logs',
-                    'source' => __DIR__ . '/../../../database/migrations/2024_01_01_000002_create_tenant_event_logs_table.php',
-                ],
-            ];
-        } else {
-            $this->info('Default entities mode: Creating all migrations');
-            $migrations = [
-                'create_tenants_table' => [
-                    'table' => 'tenants',
-                    'source' => __DIR__ . '/../../../database/migrations/2024_01_01_000000_create_tenants_table.php',
-                ],
-                'create_tenant_domains_table' => [
-                    'table' => 'tenant_domains',
-                    'source' => __DIR__ . '/../../../database/migrations/2024_01_01_000001_create_tenant_domains_table.php',
-                ],
-                'create_tenant_event_logs_table' => [
-                    'table' => 'tenant_event_logs',
-                    'source' => __DIR__ . '/../../../database/migrations/2024_01_01_000002_create_tenant_event_logs_table.php',
-                ],
-            ];
-        }
+        $this->info('Creating core migrations');
+        $migrations = [
+            'create_tenants_table' => [
+                'table' => 'tenants',
+                'source' => __DIR__ . '/../../../database/migrations/2024_01_01_000000_create_tenants_table.php',
+            ],
+            'create_tenant_domains_table' => [
+                'table' => 'tenant_domains',
+                'source' => __DIR__ . '/../../../database/migrations/2024_01_01_000001_create_tenant_domains_table.php',
+            ],
+        ];
 
         $createdMigrations = [];
 

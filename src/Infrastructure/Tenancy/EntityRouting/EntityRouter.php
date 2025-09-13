@@ -4,7 +4,6 @@ namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy\EntityRouting;
 
 use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenancyConfigurationException;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Logging\TenancyLogger;
 use Doctrine\ORM\EntityManager;
 
 /**
@@ -72,8 +71,7 @@ class EntityRouter
             return $centralEm;
         }
 
-        // Log warning for unknown entities and default to central
-        TenancyLogger::entityRouted($className, 'central_unknown', null);
+        // Default to central for unknown entities
         return $centralEm;
     }
 
@@ -112,7 +110,6 @@ class EntityRouter
             );
         }
 
-        TenancyLogger::entityRouted($className, 'tenant', $this->tenantContext->getCurrentTenant());
         return $tenantEm;
     }
 

@@ -5,7 +5,6 @@ namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy;
 use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\EntityRouting\EntityRouter;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Database\DatabaseConnectionManager;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Logging\TenancyLogger;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -194,7 +193,6 @@ class SmartEntityManager implements EntityManagerInterface
                 $this->tenantEntityManager->commit();
             }
 
-            TenancyLogger::performanceMetric('transaction_wrap', microtime(true) - $startTime);
             
             return $result;
         } catch (\Exception $e) {
@@ -371,10 +369,6 @@ class SmartEntityManager implements EntityManagerInterface
 
     public function __call($method, $arguments)
     {
-        TenancyLogger::performanceMetric('unknown_method_call', 0, [
-            'method' => $method,
-            'arguments_count' => count($arguments)
-        ]);
 
         return $this->centralEntityManager->$method(...$arguments);
     }

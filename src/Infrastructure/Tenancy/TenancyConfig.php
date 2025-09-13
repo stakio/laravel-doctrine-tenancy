@@ -28,21 +28,6 @@ class TenancyConfig
         return config('tenancy.database.central_connection') ?? config('database.default', 'mysql');
     }
 
-    /**
-     * Check if auto-creation of tenant databases is enabled
-     */
-    public static function isAutoCreateEnabled(): bool
-    {
-        return config('tenancy.database.auto_create', true);
-    }
-
-    /**
-     * Check if auto-migration of tenant databases is enabled
-     */
-    public static function isAutoMigrateEnabled(): bool
-    {
-        return config('tenancy.database.auto_migrate', true);
-    }
 
     /**
      * Get entity routing configuration
@@ -52,7 +37,6 @@ class TenancyConfig
         $centralEntities = config('tenancy.entity_routing.central', []);
         $tenantEntity = self::getTenantEntityClass();
         $domainEntity = self::getDomainEntityClass();
-        $eventLogEntity = \LaravelDoctrine\Tenancy\Domain\EventTracking\TenantEventLog::class;
         
         // Automatically add the tenant entity to central entities if not already present
         if (!in_array($tenantEntity, $centralEntities)) {
@@ -62,11 +46,6 @@ class TenancyConfig
         // Automatically add the domain entity to central entities if not already present
         if (!in_array($domainEntity, $centralEntities)) {
             $centralEntities[] = $domainEntity;
-        }
-        
-        // Automatically add the event log entity to central entities if not already present
-        if (!in_array($eventLogEntity, $centralEntities)) {
-            $centralEntities[] = $eventLogEntity;
         }
         
         return [

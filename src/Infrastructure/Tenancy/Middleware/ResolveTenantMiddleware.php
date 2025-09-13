@@ -7,7 +7,6 @@ use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenantException;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Resolution\TenantResolver;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Resolution\HeaderResolutionStrategy;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Resolution\DomainResolutionStrategy;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Caching\TenantCache;
 use Doctrine\ORM\EntityManagerInterface;
 use Closure;
 use Illuminate\Http\Request;
@@ -20,12 +19,11 @@ class ResolveTenantMiddleware
 
     public function __construct(
         private TenantContextInterface $tenantContext,
-        EntityManagerInterface $entityManager,
-        TenantCache $cache
+        EntityManagerInterface $entityManager
     ) {
         $this->resolver = new TenantResolver(
             new HeaderResolutionStrategy($entityManager),
-            new DomainResolutionStrategy($entityManager, $cache)
+            new DomainResolutionStrategy($entityManager)
         );
     }
 

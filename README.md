@@ -1,6 +1,6 @@
 # Laravel Doctrine Tenancy
 
-A lightweight multi-tenancy package for Laravel applications using Doctrine ORM.
+A lightweight, high-performance multi-tenancy package for Laravel applications using Doctrine ORM.
 
 ## Features
 
@@ -8,10 +8,9 @@ A lightweight multi-tenancy package for Laravel applications using Doctrine ORM.
 - **Smart Entity Manager** with automatic routing
 - **Multiple resolution strategies** (header, domain)
 - **Custom tenant entities** support
-- **Event tracking** system
-- **Automatic database creation** and migration
-- **Configurable auto-setup** (can be disabled)
+- **Manual database management** (simple commands)
 - **Laravel 11.0+** and **12.0+** support
+- **Zero over-engineering** - Clean, SOLID code
 
 ## Installation
 
@@ -35,19 +34,14 @@ php artisan migrate
 
 ```php
 // config/tenancy.php
-    'entity_routing' => [
-        'central' => [
-            'App\Domain\User\User',
-        ],
-        'tenant' => [
-            'App\Domain\Project\Project',
-        ],
+'entity_routing' => [
+    'central' => [
+        'App\Entities\Clinic',        // Shared across all tenants
     ],
-
-    'database' => [
-        'auto_create' => true,  // Auto-create tenant databases
-        'auto_migrate' => true, // Auto-run migrations
+    'tenant' => [
+        'App\Entities\Patient',       // Tenant-specific data
     ],
+],
 ```
 
 ### 2. Add Middleware
@@ -55,6 +49,7 @@ php artisan migrate
 ```php
 Route::middleware(['resolve.tenant'])->group(function () {
     // Your tenant-aware routes
+    Route::get('/patients', [PatientController::class, 'index']);
 });
 ```
 
@@ -63,7 +58,7 @@ Route::middleware(['resolve.tenant'])->group(function () {
 ```php
 use Doctrine\ORM\EntityManagerInterface;
 
-class ProjectController
+class PatientController
 {
     public function __construct(
         private EntityManagerInterface $entityManager
@@ -72,17 +67,106 @@ class ProjectController
     public function index()
     {
         // Automatically routes to tenant database
-        $projects = $this->entityManager->getRepository(Project::class)->findAll();
-        return response()->json($projects);
+        $patients = $this->entityManager->getRepository(Patient::class)->findAll();
+        return response()->json($patients);
     }
 }
 ```
 
+## Tenant Resolution
+
+### Domain-based Resolution
+```
+tenant1.example.com → resolves to tenant1
+tenant2.example.com → resolves to tenant2
+```
+
+### Header-based Resolution
+```http
+X-Tenant-ID: 550e8400-e29b-41d4-a716-446655440000
+```
+
+## Database Management
+
+### Create Tenant Database
+```bash
+php artisan tenant:database create {tenant-id}
+```
+
+### Run Migrations
+```bash
+php artisan tenant:database migrate {tenant-id}
+```
+
+### Delete Tenant Database
+```bash
+php artisan tenant:database delete {tenant-id}
+```
+
 ## Custom Entities
 
-```bash
-# Install with custom entities (events only)
-php artisan tenancy:install --custom-entities
+Create your own tenant and domain entities by implementing the required interfaces:
+
+```php
+use LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface;
+use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
+
+class Clinic implements TenantEntityInterface
+{
+    public function getId(): UuidInterface
+    {
+        return $this->id;
+    }
+
+    public function name(): TenantName
+    {
+        return new TenantName($this->name);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function toIdentifier(): TenantIdentifier
+    {
+        return new TenantId($this->id);
+    }
+}
+```
+
+Then configure in `config/tenancy.php`:
+
+```php
+'tenant_entity' => App\Entities\Clinic::class,
+'domain_entity' => App\Entities\ClinicDomain::class,
+```
+
+## Configuration
+
+```php
+// config/tenancy.php
+return [
+    'enabled' => true,
+    
+    'tenant_entity' => \LaravelDoctrine\Tenancy\Domain\Tenant::class,
+    'domain_entity' => \LaravelDoctrine\Tenancy\Domain\DomainEntity::class,
+    
+    'entity_routing' => [
+        'central' => ['App\Entities\Clinic'],
+        'tenant' => ['App\Entities\Patient'],
+    ],
+    
+    'database' => [
+        'central_connection' => env('TENANCY_CENTRAL_CONNECTION', 'default'),
+        'prefix' => env('TENANCY_DATABASE_PREFIX', 'tenant_'),
+    ],
+    
+    'identification' => [
+        'header_name' => env('TENANCY_HEADER_NAME', 'X-Tenant-ID'),
+        'excluded_subdomains' => ['www', 'api', 'admin'],
+    ],
+];
 ```
 
 ## Requirements

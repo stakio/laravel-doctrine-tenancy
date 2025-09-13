@@ -19,18 +19,13 @@ class TenantDatabaseManager
             $databaseName = $this->buildDatabaseName($tenant);
 
             if ($this->databaseExists($databaseName)) {
-                Log::info("Database already exists for tenant: {$tenant->value()}");
                 return true;
             }
 
             $this->createDatabase($databaseName);
-            $this->runTenantMigrations($tenant);
-
-            Log::info("Successfully created database for tenant: {$tenant->value()}");
             return true;
         } catch (\Exception $e) {
-            Log::error("Failed to create database for tenant {$tenant->value()}: " . $e->getMessage());
-            return false;
+            throw new \Exception("Failed to create database for tenant {$tenant->value()}: " . $e->getMessage());
         }
     }
 
@@ -52,36 +47,9 @@ class TenantDatabaseManager
     {
         try {
             $this->runTenantMigrations($tenant);
-            Log::info("Successfully migrated database for tenant: {$tenant->value()}");
             return true;
         } catch (\Exception $e) {
-            Log::error("Failed to migrate database for tenant {$tenant->value()}: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function getTenantMigrationStatus(TenantIdentifier $tenant): array
-    {
-        try {
-            $databaseName = $this->buildDatabaseName($tenant);
-            $this->setTenantDatabaseConnection($tenant);
-
-            $output = new BufferedOutput;
-            Artisan::call('migrate:status', [
-                '--database' => 'tenant',
-                '--path' => self::TENANT_MIGRATIONS_PATH,
-            ], $output);
-
-            $result = $output->fetch();
-            $this->resetDatabaseConnection();
-
-            return [
-                'status' => 'migrated',
-                'migrations' => $this->parseMigrationStatus($result),
-                'total_migrations' => substr_count($result, '|'),
-            ];
-        } catch (\Exception $e) {
-            return ['error' => $e->getMessage()];
+            throw new \Exception("Failed to migrate database for tenant {$tenant->value()}: " . $e->getMessage());
         }
     }
 
@@ -174,23 +142,4 @@ class TenantDatabaseManager
         return app('db')->connection($centralConnection);
     }
 
-    private function parseMigrationStatus(string $result): array
-    {
-        $lines = explode("\n", $result);
-        $migrations = [];
-        
-        foreach ($lines as $line) {
-            if (strpos($line, '|') !== false) {
-                $parts = explode('|', $line);
-                if (count($parts) >= 2) {
-                    $migrations[] = (object) [
-                        'migration' => trim($parts[0]),
-                        'batch' => (int) trim($parts[1]),
-                    ];
-                }
-            }
-        }
-        
-        return $migrations;
-    }
 }

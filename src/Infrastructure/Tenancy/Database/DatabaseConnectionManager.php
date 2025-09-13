@@ -4,7 +4,6 @@ namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Database;
 
 use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenantDatabaseException;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Logging\TenancyLogger;
 use Doctrine\DBAL\Exception as DBALException;
 
 class DatabaseConnectionManager
@@ -40,7 +39,6 @@ class DatabaseConnectionManager
         app(\LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenantConnectionWrapper::class)
             ->switchToTenant($tenant);
             
-        TenancyLogger::databaseConnectionChanged('central', 'tenant', $tenant);
     }
 
     /**
@@ -55,7 +53,6 @@ class DatabaseConnectionManager
             return;
         }
 
-        TenancyLogger::tenantDatabaseCreationFailed($tenant, $e->getMessage());
         throw TenantDatabaseException::connectionFailed($tenant->value(), $e->getMessage());
     }
 
@@ -87,9 +84,7 @@ class DatabaseConnectionManager
                 
             $this->switchToTenant();
             
-            TenancyLogger::tenantDatabaseCreated($tenant);
         } catch (\Exception $e) {
-            TenancyLogger::tenantDatabaseCreationFailed($tenant, $e->getMessage());
             throw TenantDatabaseException::creationFailed($tenant->value(), $e->getMessage());
         }
     }
@@ -103,7 +98,6 @@ class DatabaseConnectionManager
             app(\LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenantConnectionWrapper::class)
                 ->switchToCentral();
                 
-            TenancyLogger::databaseConnectionChanged('tenant', 'central', $this->tenantContext->getCurrentTenant());
         }
     }
 }

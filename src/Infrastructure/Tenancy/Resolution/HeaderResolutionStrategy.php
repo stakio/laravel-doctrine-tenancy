@@ -6,8 +6,6 @@ use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenantResolutionException;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Resolution\Contracts\TenantResolutionStrategy;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenancyConfig;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Logging\TenancyLogger;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Validation\InputValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 
@@ -27,31 +25,14 @@ class HeaderResolutionStrategy implements TenantResolutionStrategy
             return null;
         }
 
-        // Validate and sanitize input
-        try {
-            $tenantId = InputValidator::validateHeaderValue($tenantId);
-            if (!$tenantId) {
-                return null;
-            }
-            
-            $tenantId = InputValidator::validateTenantId($tenantId);
-        } catch (\Exception $e) {
-            TenancyLogger::tenantResolutionFailed('Invalid tenant ID in header', [
-                'header' => $headerName,
-                'value' => $tenantId,
-                'error' => $e->getMessage()
-            ]);
+        // Basic validation
+        if (empty($tenantId) || !is_string($tenantId)) {
             return null;
         }
 
         try {
             $uuid = \Ramsey\Uuid\Uuid::fromString($tenantId);
         } catch (\Exception $e) {
-            TenancyLogger::tenantResolutionFailed('Invalid tenant ID format in header', [
-                'header' => $headerName,
-                'value' => $tenantId,
-                'error' => $e->getMessage()
-            ]);
             return null;
         }
 
@@ -65,11 +46,7 @@ class HeaderResolutionStrategy implements TenantResolutionStrategy
         }
 
         $identifier = $tenant->toIdentifier();
-        TenancyLogger::tenantResolved($identifier, 'header', [
-            'header' => $headerName,
-            'tenant_id' => $tenantId
-        ]);
-
+        
         return $identifier;
     }
 

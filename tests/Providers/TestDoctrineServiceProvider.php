@@ -86,7 +86,6 @@ class TestDoctrineServiceProvider extends ServiceProvider
         $classes = [
             $entityManager->getClassMetadata(\LaravelDoctrine\Tenancy\Domain\Tenant::class),
             $entityManager->getClassMetadata(\LaravelDoctrine\Tenancy\Domain\DomainEntity::class),
-            $entityManager->getClassMetadata(\LaravelDoctrine\Tenancy\Domain\EventTracking\TenantEventLog::class),
         ];
         
         // Drop existing schema first to avoid conflicts

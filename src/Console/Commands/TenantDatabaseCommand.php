@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 class TenantDatabaseCommand extends Command
 {
     protected $signature = 'tenant:database 
-                            {action : The action to perform (create, delete, migrate, status)}
+                            {action : The action to perform (create, delete, migrate)}
                             {tenant-id : The tenant ID}';
 
     protected $description = 'Manage tenant databases';
@@ -26,8 +26,7 @@ class TenantDatabaseCommand extends Command
                 'create' => $this->createTenantDatabase($databaseManager, $tenantIdentifier),
                 'delete' => $this->deleteTenantDatabase($databaseManager, $tenantIdentifier),
                 'migrate' => $this->migrateTenantDatabase($databaseManager, $tenantIdentifier),
-                'status' => $this->getTenantStatus($databaseManager, $tenantIdentifier),
-                default => $this->error("Unknown action: {$action}"),
+                default => $this->error("Unknown action: {$action}. Use: create, delete, or migrate") ?? 1,
             };
         } catch (\Exception $e) {
             $this->error("Error: {$e->getMessage()}");
@@ -39,13 +38,9 @@ class TenantDatabaseCommand extends Command
     {
         $this->info("Creating database for tenant: {$tenantId}");
 
-        if ($databaseManager->createTenantDatabase($tenantId)) {
-            $this->info("✅ Tenant database created successfully");
-            return 0;
-        }
-
-        $this->error("❌ Failed to create tenant database");
-        return 1;
+        $databaseManager->createTenantDatabase($tenantId);
+        $this->info("✅ Tenant database created successfully");
+        return 0;
     }
 
     private function deleteTenantDatabase(TenantDatabaseManager $databaseManager, TenantId $tenantId): int
@@ -53,13 +48,9 @@ class TenantDatabaseCommand extends Command
         $this->info("Deleting database for tenant: {$tenantId}");
 
         if ($this->confirm('Are you sure you want to delete this tenant database?')) {
-            if ($databaseManager->deleteTenantDatabase($tenantId)) {
-                $this->info("✅ Tenant database deleted successfully");
-                return 0;
-            }
-
-            $this->error("❌ Failed to delete tenant database");
-            return 1;
+            $databaseManager->deleteTenantDatabase($tenantId);
+            $this->info("✅ Tenant database deleted successfully");
+            return 0;
         }
 
         $this->info("Operation cancelled");
@@ -70,41 +61,9 @@ class TenantDatabaseCommand extends Command
     {
         $this->info("Migrating database for tenant: {$tenantId}");
 
-        if ($databaseManager->migrateTenantDatabase($tenantId)) {
-            $this->info("✅ Tenant database migrated successfully");
-            return 0;
-        }
-
-        $this->error("❌ Failed to migrate tenant database");
-        return 1;
-    }
-
-
-    private function getTenantStatus(TenantDatabaseManager $databaseManager, TenantId $tenantId): int
-    {
-        $this->info("Getting status for tenant: {$tenantId}");
-
-        $status = $databaseManager->getTenantMigrationStatus($tenantId);
-
-        if (isset($status['error'])) {
-            $this->error("❌ Error: {$status['error']}");
-            return 1;
-        }
-
-        $this->info("✅ Tenant database status:");
-        $this->line("Status: {$status['status']}");
-        $this->line("Total migrations: {$status['total_migrations']}");
-
-        if (isset($status['migrations'])) {
-            $this->table(
-                ['Migration', 'Batch'],
-                collect($status['migrations'])->map(fn($migration) => [
-                    $migration->migration,
-                    $migration->batch,
-                ])
-            );
-        }
-
+        $databaseManager->migrateTenantDatabase($tenantId);
+        $this->info("✅ Tenant database migrated successfully");
         return 0;
     }
+
 }
