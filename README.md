@@ -1,16 +1,15 @@
 # Laravel Doctrine Tenancy
 
-A lightweight, high-performance multi-tenancy package for Laravel applications using Doctrine ORM.
+Professional multi-tenancy for Laravel using Doctrine ORM. Clean APIs, job-based database operations, and first-class portability.
 
-## Features
+## Highlights
 
 - **Database-per-tenant** architecture
-- **Smart Entity Manager** with automatic routing
-- **Multiple resolution strategies** (header, domain)
-- **Custom tenant entities** support
-- **Manual database management** (simple commands)
-- **Laravel 11.0+** and **12.0+** support
-- **Zero over-engineering** - Clean, SOLID code
+- **Automatic routing** via a Smart Entity Manager
+- **Domain/Header** based tenant resolution
+- **Job-based ops** (migrate/delete) with retries and optional sync
+- **Rollback-aware migrations** and structured logging
+- **Laravel 11/12** and **Doctrine ORM 3**
 
 ## Installation
 
@@ -18,19 +17,28 @@ A lightweight, high-performance multi-tenancy package for Laravel applications u
 composer require doctrine-tenancy/laravel
 ```
 
-## Quick Start
+Then run the installer:
 
 ```bash
-# Install with migrations
+# Publish config only (recommended)
 php artisan tenancy:install
 
-# Run migrations
+# Publish config + core migration stubs (optional)
+php artisan tenancy:install --migrations
+
+# You can always publish stubs later
+php artisan vendor:publish --tag=tenancy-migrations-stub
+```
+
+Run your application migrations (includes the published `tenants` and `tenant_domains` if you chose to publish stubs):
+
+```bash
 php artisan migrate
 ```
 
 ## Usage
 
-### 1. Configure Entity Routing
+### 1) Configure Entity Routing
 
 ```php
 // config/tenancy.php
@@ -44,7 +52,7 @@ php artisan migrate
 ],
 ```
 
-### 2. Add Middleware
+### 2) Add Middleware
 
 ```php
 Route::middleware(['resolve.tenant'])->group(function () {
@@ -53,7 +61,7 @@ Route::middleware(['resolve.tenant'])->group(function () {
 });
 ```
 
-### 3. Use in Controllers
+### 3) Use in Controllers
 
 ```php
 use Doctrine\ORM\EntityManagerInterface;
@@ -75,32 +83,41 @@ class PatientController
 
 ## Tenant Resolution
 
-### Domain-based Resolution
-```
-tenant1.example.com → resolves to tenant1
-tenant2.example.com → resolves to tenant2
-```
+- **Domain-based**: `tenant1.example.com` → `tenant1`
+- **Header-based**: set `X-Tenant-ID: <uuid>`
 
-### Header-based Resolution
-```http
-X-Tenant-ID: 550e8400-e29b-41d4-a716-446655440000
-```
+## Database Management (Jobs)
 
-## Database Management
+All tenant DB operations run as jobs. Use `--sync` for blocking execution.
 
-### Create Tenant Database
+### Migrate
 ```bash
-php artisan tenant:database create {tenant-id}
-```
-
-### Run Migrations
-```bash
+# Asynchronous (recommended)
 php artisan tenant:database migrate {tenant-id}
+
+# Synchronous (blocks until done)
+php artisan tenant:database migrate {tenant-id} --sync
+
+# Optional email notification on completion/failure
+php artisan tenant:database migrate {tenant-id} --notify=admin@example.com
 ```
 
-### Delete Tenant Database
+### Delete
 ```bash
+# Asynchronous
 php artisan tenant:database delete {tenant-id}
+
+# Synchronous
+php artisan tenant:database delete {tenant-id} --sync
+```
+
+### Queue Management
+```bash
+# Run workers for tenant queues
+php artisan queue:work --queue=tenant-migrations,tenant-deletions
+
+# Check failed jobs
+php artisan queue:failed
 ```
 
 ## Custom Entities
@@ -162,12 +179,60 @@ return [
         'prefix' => env('TENANCY_DATABASE_PREFIX', 'tenant_'),
     ],
     
+    'migrations' => [
+        'tenant_path' => 'database/migrations/tenant',
+    ],
+    
+    'logging' => [
+        'channel' => env('TENANCY_LOG_CHANNEL', null), // Optional dedicated channel
+    ],
+    
     'identification' => [
         'header_name' => env('TENANCY_HEADER_NAME', 'X-Tenant-ID'),
         'excluded_subdomains' => ['www', 'api', 'admin'],
     ],
 ];
 ```
+
+### Publishing
+
+```bash
+# Config
+php artisan vendor:publish --tag=tenancy-config
+
+# Migration stubs (optional)
+php artisan vendor:publish --tag=tenancy-migrations-stub
+```
+
+Publishing stubs copies `tenants` and `tenant_domains` migrations into `database/migrations/`. Use them as-is or adapt for custom entities.
+
+## Supported Database Drivers
+
+This package supports the following database drivers:
+
+- **MySQL** 5.7+ / **MariaDB** 10.3+
+- **PostgreSQL** 10+
+- **SQLite** 3.8+
+
+### Database-Specific Features
+
+- **MySQL/MariaDB**: Full support with `INFORMATION_SCHEMA` queries for database existence checks
+- **PostgreSQL**: Full support with `pg_database` queries and connection termination for safe drops
+- **SQLite**: Basic support (databases are files, created on first connection)
+
+## Versioning Strategy
+
+This package follows [Semantic Versioning](https://semver.org/):
+
+- **Major versions** (1.0, 2.0): Breaking changes that require code modifications
+- **Minor versions** (1.1, 1.2): New features, backward compatible
+- **Patch versions** (1.1.1, 1.1.2): Bug fixes, backward compatible
+
+### Breaking Changes Policy
+
+- Breaking changes are only introduced in major versions
+- Deprecations are announced at least one minor version before removal
+- Migration guides are provided for major version upgrades
 
 ## Requirements
 

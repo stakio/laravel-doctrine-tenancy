@@ -2,10 +2,9 @@
 
 namespace LaravelDoctrine\Tenancy\Tests\Feature\TenantResolution;
 
+use Illuminate\Http\Request;
 use LaravelDoctrine\Tenancy\Tests\TestCase;
 use LaravelDoctrine\Tenancy\Tests\Traits\TenancyTestHelpers;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
-use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 
 class ResolutionPriorityTest extends TestCase
@@ -25,7 +24,7 @@ class ResolutionPriorityTest extends TestCase
         $headerTenant = $this->createTenant('Header Tenant', 'header.com');
         $domainTenant = $this->createTenant('Domain Tenant', 'domain.com');
         $this->createDomainEntity($domainTenant->getId(), 'domain.com');
-        
+
         // Request with both header and domain
         $request = $this->createRequestWithHeader($headerTenant->getId()->toString());
         $request->server->set('HTTP_HOST', 'domain.com');
@@ -43,11 +42,11 @@ class ResolutionPriorityTest extends TestCase
     {
         $domainTenant = $this->createTenant('Domain Tenant', 'domain.com');
         $domainEntity = $this->createDomainEntity($domainTenant->getId(), 'domain.com');
-        
+
         // Verify domain entity was created
         $this->assertTrue($domainEntity->isActive());
         $this->assertEquals('domain.com', $domainEntity->domain()->value());
-        
+
         // Request with invalid header but valid domain
         $request = Request::create('http://domain.com/test', 'GET');
         $request->headers->set('X-Tenant-ID', 'invalid-uuid');
@@ -57,7 +56,7 @@ class ResolutionPriorityTest extends TestCase
             $currentTenant = $this->tenantContext->getCurrentTenant();
             if ($currentTenant === null) {
                 // Debug: Let's see what's in the request
-                $this->fail("Expected tenant to be resolved via domain fallback, but got null. Host: " . $req->getHost());
+                $this->fail('Expected tenant to be resolved via domain fallback, but got null. Host: '.$req->getHost());
             }
             $this->assertTenantResolved($domainTenant->getId());
         });

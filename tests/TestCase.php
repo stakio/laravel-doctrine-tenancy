@@ -10,7 +10,7 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Set up Doctrine configuration
         $this->setUpDoctrine();
     }
@@ -48,7 +48,7 @@ abstract class TestCase extends BaseTestCase
                     'mappings' => [
                         'LaravelDoctrine\\Tenancy\\Domain' => [
                             'type' => 'attribute',
-                            'dir' => realpath(__DIR__ . '/../src/Domain'),
+                            'dir' => realpath(__DIR__.'/../src/Domain'),
                             'prefix' => 'LaravelDoctrine\\Tenancy\\Domain',
                         ],
                     ],

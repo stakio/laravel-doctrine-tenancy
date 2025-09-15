@@ -5,8 +5,8 @@ namespace LaravelDoctrine\Tenancy\Domain;
 use Doctrine\ORM\Mapping as ORM;
 use LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface;
 use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantName;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
+use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantName;
 use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity]
@@ -36,8 +36,8 @@ class Tenant implements TenantEntityInterface
     ) {
         $this->id = $id;
         $this->name = $name->value();
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable;
+        $this->updatedAt = new \DateTimeImmutable;
 
     }
 

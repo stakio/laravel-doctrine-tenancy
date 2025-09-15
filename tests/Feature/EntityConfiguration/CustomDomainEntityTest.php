@@ -2,13 +2,13 @@
 
 namespace LaravelDoctrine\Tenancy\Tests\Feature\EntityConfiguration;
 
+use Illuminate\Support\Facades\Config;
+use LaravelDoctrine\Tenancy\Contracts\DomainEntityInterface;
+use LaravelDoctrine\Tenancy\Domain\ValueObjects\Domain;
+use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenancyConfig;
 use LaravelDoctrine\Tenancy\Tests\TestCase;
 use LaravelDoctrine\Tenancy\Tests\Traits\TenancyTestHelpers;
-use LaravelDoctrine\Tenancy\Contracts\DomainEntityInterface;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\Domain;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenancyConfig;
-use Illuminate\Support\Facades\Config;
 use PHPUnit\Framework\Attributes\Test;
 
 class CustomDomainEntityTest extends TestCase
@@ -26,14 +26,19 @@ class CustomDomainEntityTest extends TestCase
     {
         // Create a custom domain entity class
         $customDomainClass = 'CustomDomainEntity';
-        
+
         // Mock the custom domain entity
         $this->app->bind($customDomainClass, function () {
-            return new class implements DomainEntityInterface {
+            return new class implements DomainEntityInterface
+            {
                 private $id;
+
                 private $domain;
+
                 private $tenantId;
+
                 private $isActive = true;
+
                 private $customField;
 
                 public function __construct()
@@ -44,21 +49,70 @@ class CustomDomainEntityTest extends TestCase
                     $this->customField = 'custom_domain_value';
                 }
 
-                public function getId(): \Ramsey\Uuid\UuidInterface { return $this->id; }
-                public function id(): \Ramsey\Uuid\UuidInterface { return $this->id; }
-                public function domain(): Domain { return $this->domain; }
-                public function tenantId(): TenantId { return $this->tenantId; }
-                public function isActive(): bool { return $this->isActive; }
-                public function isPrimary(): bool { return false; }
-                public function setPrimary(bool $primary): void { /* no-op */ }
-                public function activate(): void { $this->isActive = true; }
-                public function deactivate(): void { $this->isActive = false; }
-                public function getCreatedAt(): \DateTimeImmutable { return new \DateTimeImmutable(); }
-                public function getUpdatedAt(): \DateTimeImmutable { return new \DateTimeImmutable(); }
-                public function getDeactivatedAt(): ?\DateTimeImmutable { return null; }
-                
+                public function getId(): \Ramsey\Uuid\UuidInterface
+                {
+                    return $this->id;
+                }
+
+                public function id(): \Ramsey\Uuid\UuidInterface
+                {
+                    return $this->id;
+                }
+
+                public function domain(): Domain
+                {
+                    return $this->domain;
+                }
+
+                public function tenantId(): TenantId
+                {
+                    return $this->tenantId;
+                }
+
+                public function isActive(): bool
+                {
+                    return $this->isActive;
+                }
+
+                public function isPrimary(): bool
+                {
+                    return false;
+                }
+
+                public function setPrimary(bool $primary): void
+                { /* no-op */
+                }
+
+                public function activate(): void
+                {
+                    $this->isActive = true;
+                }
+
+                public function deactivate(): void
+                {
+                    $this->isActive = false;
+                }
+
+                public function getCreatedAt(): \DateTimeImmutable
+                {
+                    return new \DateTimeImmutable;
+                }
+
+                public function getUpdatedAt(): \DateTimeImmutable
+                {
+                    return new \DateTimeImmutable;
+                }
+
+                public function getDeactivatedAt(): ?\DateTimeImmutable
+                {
+                    return null;
+                }
+
                 // Custom method
-                public function getCustomField(): string { return $this->customField; }
+                public function getCustomField(): string
+                {
+                    return $this->customField;
+                }
             };
         });
 
@@ -74,13 +128,18 @@ class CustomDomainEntityTest extends TestCase
     {
         // Create a custom domain entity with different structure
         $customDomainClass = 'DifferentStructureDomain';
-        
+
         $this->app->bind($customDomainClass, function () {
-            return new class implements DomainEntityInterface {
+            return new class implements DomainEntityInterface
+            {
                 private $uuid;
+
                 private $domainName;
+
                 private $ownerTenantId;
+
                 private $active = true;
+
                 private $priority = 1;
 
                 public function __construct()
@@ -91,22 +150,75 @@ class CustomDomainEntityTest extends TestCase
                     $this->priority = 1;
                 }
 
-                public function getId(): \Ramsey\Uuid\UuidInterface { return $this->uuid; }
-                public function id(): \Ramsey\Uuid\UuidInterface { return $this->uuid; }
-                public function domain(): Domain { return $this->domainName; }
-                public function tenantId(): TenantId { return $this->ownerTenantId; }
-                public function isActive(): bool { return $this->active; }
-                public function isPrimary(): bool { return false; }
-                public function setPrimary(bool $primary): void { /* no-op */ }
-                public function activate(): void { $this->active = true; }
-                public function deactivate(): void { $this->active = false; }
-                public function getCreatedAt(): \DateTimeImmutable { return new \DateTimeImmutable(); }
-                public function getUpdatedAt(): \DateTimeImmutable { return new \DateTimeImmutable(); }
-                public function getDeactivatedAt(): ?\DateTimeImmutable { return null; }
-                
+                public function getId(): \Ramsey\Uuid\UuidInterface
+                {
+                    return $this->uuid;
+                }
+
+                public function id(): \Ramsey\Uuid\UuidInterface
+                {
+                    return $this->uuid;
+                }
+
+                public function domain(): Domain
+                {
+                    return $this->domainName;
+                }
+
+                public function tenantId(): TenantId
+                {
+                    return $this->ownerTenantId;
+                }
+
+                public function isActive(): bool
+                {
+                    return $this->active;
+                }
+
+                public function isPrimary(): bool
+                {
+                    return false;
+                }
+
+                public function setPrimary(bool $primary): void
+                { /* no-op */
+                }
+
+                public function activate(): void
+                {
+                    $this->active = true;
+                }
+
+                public function deactivate(): void
+                {
+                    $this->active = false;
+                }
+
+                public function getCreatedAt(): \DateTimeImmutable
+                {
+                    return new \DateTimeImmutable;
+                }
+
+                public function getUpdatedAt(): \DateTimeImmutable
+                {
+                    return new \DateTimeImmutable;
+                }
+
+                public function getDeactivatedAt(): ?\DateTimeImmutable
+                {
+                    return null;
+                }
+
                 // Custom methods
-                public function getPriority(): int { return $this->priority; }
-                public function setPriority(int $priority): void { $this->priority = $priority; }
+                public function getPriority(): int
+                {
+                    return $this->priority;
+                }
+
+                public function setPriority(int $priority): void
+                {
+                    $this->priority = $priority;
+                }
             };
         });
 
@@ -136,7 +248,7 @@ class CustomDomainEntityTest extends TestCase
         // Configure both custom entities
         $customTenantClass = 'CustomTenantEntity';
         $customDomainClass = 'CustomDomainEntity';
-        
+
         Config::set('tenancy.tenant_entity', $customTenantClass);
         Config::set('tenancy.domain_entity', $customDomainClass);
 

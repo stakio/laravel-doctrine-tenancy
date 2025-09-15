@@ -4,8 +4,6 @@ namespace LaravelDoctrine\Tenancy\Tests\Feature\TenantResolution;
 
 use LaravelDoctrine\Tenancy\Tests\TestCase;
 use LaravelDoctrine\Tenancy\Tests\Traits\TenancyTestHelpers;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
-use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 
 class DomainBasedResolutionTest extends TestCase
@@ -23,7 +21,7 @@ class DomainBasedResolutionTest extends TestCase
     {
         $tenant = $this->createTenant('Domain Tenant', 'domain.com');
         $this->createDomainEntity($tenant->getId(), 'domain.com');
-        
+
         $request = $this->createRequestWithDomain('domain.com');
 
         $response = $this->runMiddlewareWithAssertions($request, function () use ($tenant) {
@@ -38,7 +36,7 @@ class DomainBasedResolutionTest extends TestCase
     {
         $tenant = $this->createTenant('Subdomain Tenant', 'sub.example.com');
         $this->createDomainEntity($tenant->getId(), 'sub.example.com');
-        
+
         $request = $this->createRequestWithDomain('sub.example.com');
 
         $response = $this->runMiddlewareWithAssertions($request, function () use ($tenant) {
@@ -53,7 +51,7 @@ class DomainBasedResolutionTest extends TestCase
     {
         $tenant = $this->createTenant('TLD Tenant', 'example.com');
         $this->createDomainEntity($tenant->getId(), 'example.com');
-        
+
         $request = $this->createRequestWithDomain('example.com');
 
         $response = $this->runMiddlewareWithAssertions($request, function () use ($tenant) {
@@ -80,7 +78,7 @@ class DomainBasedResolutionTest extends TestCase
     {
         $tenant = $this->createTenant('Inactive Tenant', 'inactive.com');
         $this->createDomainEntity($tenant->getId(), 'inactive.com', false);
-        
+
         $request = $this->createRequestWithDomain('inactive.com');
 
         $response = $this->runMiddlewareWithAssertions($request, function () {
@@ -94,9 +92,9 @@ class DomainBasedResolutionTest extends TestCase
     public function it_handles_excluded_subdomains()
     {
         $excludedDomains = ['www', 'api', 'admin', 'app'];
-        
+
         foreach ($excludedDomains as $subdomain) {
-            $request = $this->createRequestWithDomain($subdomain . '.example.com');
+            $request = $this->createRequestWithDomain($subdomain.'.example.com');
 
             $response = $this->runMiddlewareWithAssertions($request, function () {
                 $this->assertNoTenantResolved();
@@ -111,12 +109,12 @@ class DomainBasedResolutionTest extends TestCase
     {
         $tenant = $this->createTenant('Case Tenant', 'case.com');
         $this->createDomainEntity($tenant->getId(), 'case.com');
-        
+
         $testCases = [
             'case.com',
             'Case.com',
             'CASE.COM',
-            'Case.COM'
+            'Case.COM',
         ];
 
         foreach ($testCases as $testDomain) {

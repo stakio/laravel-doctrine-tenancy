@@ -2,10 +2,10 @@
 
 namespace LaravelDoctrine\Tenancy\Tests\Feature\ErrorHandling;
 
+use Illuminate\Http\Request;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenantException;
 use LaravelDoctrine\Tenancy\Tests\TestCase;
 use LaravelDoctrine\Tenancy\Tests\Traits\TenancyTestHelpers;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenantException;
-use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 
 class ExceptionHandlingTest extends TestCase
@@ -28,7 +28,7 @@ class ExceptionHandlingTest extends TestCase
         // The middleware should let the exception propagate
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Test exception');
-        
+
         $this->middleware->handle($request, function ($req) {
             throw new \Exception('Test exception');
         });

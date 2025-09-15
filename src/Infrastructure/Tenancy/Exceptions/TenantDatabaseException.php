@@ -10,6 +10,7 @@ class TenantDatabaseException extends TenancyException
         if ($reason) {
             $message .= " - {$reason}";
         }
+
         return new self($message, 500);
     }
 
@@ -19,6 +20,7 @@ class TenantDatabaseException extends TenancyException
         if ($reason) {
             $message .= " - {$reason}";
         }
+
         return new self($message, 500);
     }
 

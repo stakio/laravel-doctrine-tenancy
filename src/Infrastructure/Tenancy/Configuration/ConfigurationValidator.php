@@ -18,12 +18,12 @@ class ConfigurationValidator
     private static function validateTenantEntity(): void
     {
         $tenantEntityClass = config('tenancy.tenant_entity');
-        
-        if (!$tenantEntityClass || !class_exists($tenantEntityClass)) {
+
+        if (! $tenantEntityClass || ! class_exists($tenantEntityClass)) {
             throw TenancyConfigurationException::missingConfiguration('tenancy.tenant_entity');
         }
 
-        if (!is_subclass_of($tenantEntityClass, \LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface::class)) {
+        if (! is_subclass_of($tenantEntityClass, \LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface::class)) {
             throw TenancyConfigurationException::invalidEntityClass(
                 "Tenant entity '{$tenantEntityClass}' must implement TenantEntityInterface"
             );
@@ -33,12 +33,12 @@ class ConfigurationValidator
     private static function validateDomainEntity(): void
     {
         $domainEntityClass = config('tenancy.domain_entity');
-        
-        if (!$domainEntityClass || !class_exists($domainEntityClass)) {
+
+        if (! $domainEntityClass || ! class_exists($domainEntityClass)) {
             throw TenancyConfigurationException::missingConfiguration('tenancy.domain_entity');
         }
 
-        if (!is_subclass_of($domainEntityClass, \LaravelDoctrine\Tenancy\Contracts\DomainEntityInterface::class)) {
+        if (! is_subclass_of($domainEntityClass, \LaravelDoctrine\Tenancy\Contracts\DomainEntityInterface::class)) {
             throw TenancyConfigurationException::invalidEntityClass(
                 "Domain entity '{$domainEntityClass}' must implement DomainEntityInterface"
             );

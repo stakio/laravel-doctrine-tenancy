@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
             $table->timestamp('deactivated_at')->nullable();
-            
+
             $table->index(['tenant_id', 'is_active']);
             $table->index(['domain', 'is_active']);
         });

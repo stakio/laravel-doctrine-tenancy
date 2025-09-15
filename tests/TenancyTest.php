@@ -24,7 +24,7 @@ class TenancyTest extends TestCase
     public function test_tenant_context_can_be_resolved()
     {
         $context = $this->app->make(TenantContextInterface::class);
-        
+
         $this->assertInstanceOf(TenantContext::class, $context);
     }
 
@@ -34,14 +34,14 @@ class TenancyTest extends TestCase
         $tenantId = TenantId::fromString('550e8400-e29b-41d4-a716-446655440000');
 
         $this->assertFalse($context->hasCurrentTenant());
-        
+
         $context->setCurrentTenant($tenantId);
-        
+
         $this->assertTrue($context->hasCurrentTenant());
         $this->assertEquals($tenantId, $context->getCurrentTenant());
-        
+
         $context->clearCurrentTenant();
-        
+
         $this->assertFalse($context->hasCurrentTenant());
     }
 }

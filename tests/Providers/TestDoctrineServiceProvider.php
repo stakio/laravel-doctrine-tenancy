@@ -20,6 +20,7 @@ class TestDoctrineServiceProvider extends ServiceProvider
             if ($entityManager === null) {
                 $entityManager = $this->createEntityManager();
             }
+
             return $entityManager;
         });
 
@@ -28,6 +29,7 @@ class TestDoctrineServiceProvider extends ServiceProvider
             if ($entityManager === null) {
                 $entityManager = $this->createEntityManager();
             }
+
             return $entityManager;
         });
 
@@ -45,38 +47,38 @@ class TestDoctrineServiceProvider extends ServiceProvider
     private function createEntityManager(): EntityManager
     {
         // Register UUID type
-        if (!Type::hasType('uuid')) {
+        if (! Type::hasType('uuid')) {
             Type::addType('uuid', UuidType::class);
         }
-        
+
         // Create Doctrine configuration
-        $config = new Configuration();
-        
+        $config = new Configuration;
+
         // Set up metadata driver
         $driver = new AttributeDriver([
-            realpath(__DIR__ . '/../src/Domain'),
+            realpath(__DIR__.'/../src/Domain'),
         ]);
         $config->setMetadataDriverImpl($driver);
-        
+
         // Set up proxy configuration
         $config->setProxyDir(sys_get_temp_dir());
         $config->setProxyNamespace('Proxies');
         $config->setAutoGenerateProxyClasses(true);
-        
+
         // Skip cache setup for testing - use default in-memory behavior
-        
+
         // Create connection
         $connection = DriverManager::getConnection([
             'driver' => 'pdo_sqlite',
             'path' => ':memory:',
         ]);
-        
+
         // Create entity manager
         $entityManager = new EntityManager($connection, $config);
-        
+
         // Create schema
         $this->createSchema($entityManager);
-        
+
         return $entityManager;
     }
 
@@ -87,7 +89,7 @@ class TestDoctrineServiceProvider extends ServiceProvider
             $entityManager->getClassMetadata(\LaravelDoctrine\Tenancy\Domain\Tenant::class),
             $entityManager->getClassMetadata(\LaravelDoctrine\Tenancy\Domain\DomainEntity::class),
         ];
-        
+
         // Drop existing schema first to avoid conflicts
         $schemaTool->dropSchema($classes);
         $schemaTool->createSchema($classes);

@@ -2,9 +2,9 @@
 
 namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Resolution;
 
+use Illuminate\Http\Request;
 use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Resolution\Contracts\TenantResolutionStrategy;
-use Illuminate\Http\Request;
 
 class TenantResolver
 {
@@ -25,7 +25,7 @@ class TenantResolver
     public function resolve(Request $request): ?TenantIdentifier
     {
         foreach ($this->strategies as $strategy) {
-            if (!$strategy->isApplicable($request)) {
+            if (! $strategy->isApplicable($request)) {
                 continue;
             }
 

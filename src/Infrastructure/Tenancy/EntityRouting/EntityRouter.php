@@ -2,21 +2,23 @@
 
 namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy\EntityRouting;
 
+use Doctrine\ORM\EntityManager;
 use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenancyConfigurationException;
-use Doctrine\ORM\EntityManager;
 
 /**
  * Entity Router
- * 
+ *
  * Handles routing of entity operations to the appropriate EntityManager
  * (central or tenant) based on entity configuration and tenant context.
- * 
+ *
+ * @internal This class is not part of the public API and may change without notice.
+ *
  * This class provides a clean separation of concerns for entity routing logic,
  * making it easier to test and maintain the routing behavior.
- * 
- * @package LaravelDoctrine\Tenancy\Infrastructure\Tenancy\EntityRouting
+ *
  * @author Laravel Doctrine Tenancy Team
+ *
  * @since 1.2.0
  */
 class EntityRouter
@@ -33,8 +35,8 @@ class EntityRouter
 
     /**
      * Constructor.
-     * 
-     * @param TenantContextInterface $tenantContext The tenant context service
+     *
+     * @param  TenantContextInterface  $tenantContext  The tenant context service
      */
     public function __construct(
         private TenantContextInterface $tenantContext
@@ -44,12 +46,10 @@ class EntityRouter
 
     /**
      * Load entity routing configuration from the tenancy config.
-     * 
+     *
      * This method loads the entity routing configuration and caches it
      * for performance. The configuration determines which entities
      * should be routed to central vs tenant databases.
-     * 
-     * @return void
      */
     private function loadEntityRouting(): void
     {
@@ -104,7 +104,7 @@ class EntityRouter
      */
     private function getTenantEntityManager(string $className, EntityManager $tenantEm): EntityManager
     {
-        if (!$this->tenantContext->hasCurrentTenant()) {
+        if (! $this->tenantContext->hasCurrentTenant()) {
             throw TenancyConfigurationException::invalidRouting(
                 "No tenant context available for tenant entity: {$className}"
             );

@@ -22,6 +22,10 @@ return [
         ],
     ],
 
+    'migrations' => [
+        'tenant_path' => env('TENANCY_TENANT_MIGRATIONS_PATH', 'database/migrations/tenant'),
+    ],
+
     'entity_routing' => [
         'central' => [
             // Add your central entities here
@@ -29,6 +33,11 @@ return [
         'tenant' => [
             // Add your tenant entities here
         ],
+    ],
+
+    'logging' => [
+        // Optional: set a dedicated channel name used by this package
+        'channel' => env('TENANCY_LOG_CHANNEL', null),
     ],
 
 ];

@@ -2,8 +2,8 @@
 
 namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy;
 
-use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
 use Doctrine\DBAL\Connection;
+use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -138,9 +138,9 @@ class TenantConnectionWrapper extends Connection
         }
 
         try {
-            return TenancyConfig::getDatabasePrefix() . $tenantId;
+            return TenancyConfig::getDatabasePrefix().$tenantId;
         } catch (\Exception $e) {
-            return 'tenant-' . $tenantId;
+            return 'tenant-'.$tenantId;
         }
     }
 
@@ -198,7 +198,7 @@ class TenantConnectionWrapper extends Connection
      */
     private function ensureConnection(): void
     {
-        if (!$this->isConnected()) {
+        if (! $this->isConnected()) {
             $this->connect();
         }
         // Validate current database

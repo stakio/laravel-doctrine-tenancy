@@ -12,7 +12,7 @@ class Domain
             throw new \InvalidArgumentException('Domain cannot be empty');
         }
 
-        if (!filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+        if (! filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
             throw new \InvalidArgumentException('Invalid domain format');
         }
 

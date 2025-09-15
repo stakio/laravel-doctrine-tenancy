@@ -4,8 +4,6 @@ namespace LaravelDoctrine\Tenancy\Tests\Feature\DomainResolution;
 
 use LaravelDoctrine\Tenancy\Tests\TestCase;
 use LaravelDoctrine\Tenancy\Tests\Traits\TenancyTestHelpers;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
-use Illuminate\Http\Request;
 use PHPUnit\Framework\Attributes\Test;
 
 class MultipleDomainsTest extends TestCase
@@ -22,10 +20,10 @@ class MultipleDomainsTest extends TestCase
     public function it_handles_multiple_domains_per_tenant()
     {
         $tenant = $this->createTenant('Multi-Domain Tenant', 'primary.com');
-        
+
         // Add multiple domains for the same tenant
         $domains = ['primary.com', 'secondary.com', 'tertiary.com'];
-        
+
         foreach ($domains as $domain) {
             $this->createDomainEntity($tenant->getId(), $domain);
         }
@@ -47,7 +45,7 @@ class MultipleDomainsTest extends TestCase
     {
         $tenant1 = $this->createTenant('Tenant 1', 'tenant1.com');
         $tenant2 = $this->createTenant('Tenant 2', 'tenant2.com');
-        
+
         $this->createDomainEntity($tenant1->getId(), 'tenant1.com');
         $this->createDomainEntity($tenant2->getId(), 'tenant2.com');
 
@@ -70,7 +68,7 @@ class MultipleDomainsTest extends TestCase
     public function it_handles_mixed_active_and_inactive_domains()
     {
         $tenant = $this->createTenant('Mixed Tenant', 'active.com');
-        
+
         // Create active domain
         $this->createDomainEntity($tenant->getId(), 'active.com', true);
         // Create inactive domain
@@ -96,7 +94,7 @@ class MultipleDomainsTest extends TestCase
     {
         $tenant = $this->createTenant('Special Tenant', 'special-domain.com');
         $this->createDomainEntity($tenant->getId(), 'special-domain.com');
-        
+
         $request = $this->createRequestWithDomain('special-domain.com');
 
         $response = $this->runMiddlewareWithAssertions($request, function () use ($tenant) {

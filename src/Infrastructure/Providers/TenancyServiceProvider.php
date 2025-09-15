@@ -2,15 +2,15 @@
 
 namespace LaravelDoctrine\Tenancy\Infrastructure\Providers;
 
-use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenantContext;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\SmartEntityManager;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Middleware\ResolveTenantMiddleware;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Configuration\ConfigurationValidator;
-use LaravelDoctrine\Tenancy\Console\Commands\TenantDatabaseCommand;
-use LaravelDoctrine\Tenancy\Console\Commands\InstallTenancyCommand;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Support\ServiceProvider;
+use LaravelDoctrine\Tenancy\Console\Commands\InstallTenancyCommand;
+use LaravelDoctrine\Tenancy\Console\Commands\TenantDatabaseCommand;
+use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Configuration\ConfigurationValidator;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Middleware\ResolveTenantMiddleware;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\SmartEntityManager;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenantContext;
 
 class TenancyServiceProvider extends ServiceProvider
 {
@@ -38,12 +38,17 @@ class TenancyServiceProvider extends ServiceProvider
     {
         // Publish configuration
         $this->publishes([
-            __DIR__ . '/../../../config/tenancy.php' => config_path('tenancy.php'),
+            __DIR__.'/../../../config/tenancy.php' => config_path('tenancy.php'),
         ], 'tenancy-config');
+
+        // Publish migration stubs
+        $this->publishes([
+            __DIR__.'/../../../stubs/migrations/' => database_path('migrations'),
+        ], 'tenancy-migrations-stub');
 
         // Load configuration
         $this->mergeConfigFrom(
-            __DIR__ . '/../../../config/tenancy.php',
+            __DIR__.'/../../../config/tenancy.php',
             'tenancy'
         );
 

@@ -2,9 +2,9 @@
 
 namespace LaravelDoctrine\Tenancy\Tests\Feature\Configuration;
 
-use LaravelDoctrine\Tenancy\Tests\TestCase;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenancyConfig;
 use Illuminate\Support\Facades\Config;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenancyConfig;
+use LaravelDoctrine\Tenancy\Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 class ConfigurationTest extends TestCase
@@ -24,7 +24,7 @@ class ConfigurationTest extends TestCase
             \LaravelDoctrine\Tenancy\Domain\Tenant::class,
             TenancyConfig::getTenantEntityClass()
         );
-        
+
         $this->assertEquals(
             \LaravelDoctrine\Tenancy\Domain\DomainEntity::class,
             TenancyConfig::getDomainEntityClass()
@@ -42,7 +42,7 @@ class ConfigurationTest extends TestCase
     {
         $excluded = TenancyConfig::getExcludedSubdomains();
         $expected = ['www', 'api', 'admin'];
-        
+
         $this->assertEquals($expected, $excluded);
     }
 
@@ -51,7 +51,7 @@ class ConfigurationTest extends TestCase
     {
         $customClass = 'CustomTenantClass';
         Config::set('tenancy.tenant_entity', $customClass);
-        
+
         $this->assertEquals($customClass, TenancyConfig::getTenantEntityClass());
     }
 
@@ -60,7 +60,7 @@ class ConfigurationTest extends TestCase
     {
         $customClass = 'CustomDomainClass';
         Config::set('tenancy.domain_entity', $customClass);
-        
+
         $this->assertEquals($customClass, TenancyConfig::getDomainEntityClass());
     }
 
@@ -68,7 +68,7 @@ class ConfigurationTest extends TestCase
     public function it_has_correct_entity_routing_configuration()
     {
         $routing = TenancyConfig::getEntityRouting();
-        
+
         $this->assertArrayHasKey('central', $routing);
         $this->assertArrayHasKey('tenant', $routing);
         $this->assertIsArray($routing['central']);
@@ -79,12 +79,12 @@ class ConfigurationTest extends TestCase
     public function it_includes_tenant_and_domain_entities_in_central_routing()
     {
         $routing = TenancyConfig::getEntityRouting();
-        
+
         $this->assertContains(
             \LaravelDoctrine\Tenancy\Domain\Tenant::class,
             $routing['central']
         );
-        
+
         $this->assertContains(
             \LaravelDoctrine\Tenancy\Domain\DomainEntity::class,
             $routing['central']

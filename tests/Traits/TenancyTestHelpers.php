@@ -2,21 +2,23 @@
 
 namespace LaravelDoctrine\Tenancy\Tests\Traits;
 
-use LaravelDoctrine\Tenancy\Domain\Tenant;
-use LaravelDoctrine\Tenancy\Domain\DomainEntity;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantName;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\Domain;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Middleware\ResolveTenantMiddleware;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenantContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
+use LaravelDoctrine\Tenancy\Domain\DomainEntity;
+use LaravelDoctrine\Tenancy\Domain\Tenant;
+use LaravelDoctrine\Tenancy\Domain\ValueObjects\Domain;
+use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
+use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantName;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Middleware\ResolveTenantMiddleware;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenantContext;
 use Ramsey\Uuid\Uuid;
 
 trait TenancyTestHelpers
 {
     protected EntityManagerInterface $entityManager;
+
     protected TenantContext $tenantContext;
+
     protected ResolveTenantMiddleware $middleware;
 
     protected function setUpTenancy(): void
@@ -33,20 +35,20 @@ trait TenancyTestHelpers
             $tenantId,
             new TenantName($name),
         );
-        
+
         $this->entityManager->persist($tenant);
         $this->entityManager->flush();
-        
+
         return $tenant;
     }
 
     protected function createDomainEntity($tenantId, string $domain, bool $isActive = true): DomainEntity
     {
         // Convert UUID to TenantId if needed
-        if (!$tenantId instanceof TenantId) {
+        if (! $tenantId instanceof TenantId) {
             $tenantId = new TenantId($tenantId);
         }
-        
+
         $domainEntity = new DomainEntity(
             Uuid::uuid4(),
             new Domain($domain),
@@ -54,10 +56,10 @@ trait TenancyTestHelpers
             false, // isPrimary
             $isActive
         );
-        
+
         $this->entityManager->persist($domainEntity);
         $this->entityManager->flush();
-        
+
         return $domainEntity;
     }
 
@@ -65,6 +67,7 @@ trait TenancyTestHelpers
     {
         $request = Request::create($path, 'GET');
         $request->headers->set('X-Tenant-ID', $tenantId);
+
         return $request;
     }
 
@@ -77,7 +80,7 @@ trait TenancyTestHelpers
     {
         // Convert UUID to string if needed
         $expectedId = $expectedTenantId instanceof TenantId ? $expectedTenantId->value() : $expectedTenantId->toString();
-        
+
         $this->assertNotNull($this->tenantContext->getCurrentTenant());
         $this->assertEquals($expectedId, $this->tenantContext->getCurrentTenant()->value());
     }
@@ -91,6 +94,7 @@ trait TenancyTestHelpers
     {
         return $this->middleware->handle($request, function ($req) use ($assertions) {
             $assertions($req);
+
             return response('OK');
         });
     }

@@ -2,12 +2,12 @@
 
 namespace LaravelDoctrine\Tenancy\Tests\Feature\Facades;
 
+use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
 use LaravelDoctrine\Tenancy\Facades\Tenancy;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenantContext;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
 use LaravelDoctrine\Tenancy\Tests\TestCase;
-use Ramsey\Uuid\Uuid;
 use PHPUnit\Framework\MockObject\MockObject;
+use Ramsey\Uuid\Uuid;
 
 class TenancyFacadeTest extends TestCase
 {
@@ -16,7 +16,7 @@ class TenancyFacadeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->tenantContext = $this->createMock(TenantContext::class);
         $this->app->instance(TenantContext::class, $this->tenantContext);
     }
@@ -95,15 +95,14 @@ class TenancyFacadeTest extends TestCase
     public function test_facade_resolves_correct_service()
     {
         $facade = Tenancy::getFacadeRoot();
-        
+
         $this->assertInstanceOf(TenantContext::class, $facade);
     }
 
     public function test_database_method_returns_tenant_database_manager()
     {
         $manager = Tenancy::database();
-        
+
         $this->assertInstanceOf(\LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Database\TenantDatabaseManager::class, $manager);
     }
-
 }

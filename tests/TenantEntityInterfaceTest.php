@@ -5,11 +5,9 @@ namespace LaravelDoctrine\Tenancy\Tests;
 use LaravelDoctrine\Tenancy\Contracts\TenantEntityInterface;
 use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
 use LaravelDoctrine\Tenancy\Domain\Tenant;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantName;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\Domain;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
+use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantName;
 use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\TenancyConfig;
-use LaravelDoctrine\Tenancy\Tests\TestCase;
 use Ramsey\Uuid\Uuid;
 
 class TenantEntityInterfaceTest extends TestCase
@@ -30,7 +28,7 @@ class TenantEntityInterfaceTest extends TestCase
     {
         $id = Uuid::uuid4();
         $name = new TenantName('Test Tenant');
-        
+
         $tenant = new Tenant($id, $name);
 
         // Test core methods
@@ -48,14 +46,14 @@ class TenantEntityInterfaceTest extends TestCase
     public function test_tenancy_config_returns_tenant_entity_class()
     {
         $tenantEntityClass = TenancyConfig::getTenantEntityClass();
-        
+
         $this->assertEquals(Tenant::class, $tenantEntityClass);
     }
 
     public function test_entity_routing_includes_tenant_entity()
     {
         $routing = TenancyConfig::getEntityRouting();
-        
+
         $this->assertArrayHasKey('central', $routing);
         $this->assertArrayHasKey('tenant', $routing);
         $this->assertContains(Tenant::class, $routing['central']);
@@ -65,10 +63,10 @@ class TenantEntityInterfaceTest extends TestCase
     {
         // Test with a custom tenant entity class
         $this->app['config']->set('tenancy.tenant_entity', 'App\Custom\Tenant');
-        
+
         $tenantEntityClass = TenancyConfig::getTenantEntityClass();
         $this->assertEquals('App\Custom\Tenant', $tenantEntityClass);
-        
+
         $routing = TenancyConfig::getEntityRouting();
         $this->assertContains('App\Custom\Tenant', $routing['central']);
     }
@@ -98,7 +96,8 @@ class TenantEntityInterfaceTest extends TestCase
         );
 
         // Mock repository that accepts TenantEntityInterface
-        $repository = new class {
+        $repository = new class
+        {
             public function save(TenantEntityInterface $tenant): void
             {
                 // This should work without issues

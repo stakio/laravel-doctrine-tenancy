@@ -2,22 +2,22 @@
 
 namespace LaravelDoctrine\Tenancy\Tests\Feature\SmartEntityManager;
 
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\SmartEntityManager;
-use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
-use LaravelDoctrine\Tenancy\Tests\TestCase;
 use Doctrine\ORM\EntityManagerInterface;
-use Mockery;
+use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\SmartEntityManager;
+use LaravelDoctrine\Tenancy\Tests\TestCase;
 
 class SmartEntityManagerTest extends TestCase
 {
     private SmartEntityManager $smartEntityManager;
+
     private TenantContextInterface $tenantContext;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->tenantContext = Mockery::mock(TenantContextInterface::class);
+
+        $this->tenantContext = $this->createMock(TenantContextInterface::class);
         $this->smartEntityManager = new SmartEntityManager($this->tenantContext);
     }
 
@@ -38,15 +38,9 @@ class SmartEntityManagerTest extends TestCase
 
     public function test_constructor_accepts_tenant_context()
     {
-        $tenantContext = Mockery::mock(TenantContextInterface::class);
+        $tenantContext = $this->createMock(TenantContextInterface::class);
         $smartEntityManager = new SmartEntityManager($tenantContext);
-        
-        $this->assertInstanceOf(SmartEntityManager::class, $smartEntityManager);
-    }
 
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
+        $this->assertInstanceOf(SmartEntityManager::class, $smartEntityManager);
     }
 }

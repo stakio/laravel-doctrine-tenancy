@@ -2,42 +2,48 @@
 
 namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy;
 
-use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\EntityRouting\EntityRouter;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Database\DatabaseConnectionManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Database\DatabaseConnectionManager;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\EntityRouting\EntityRouter;
 
 /**
  * Smart Entity Manager
- * 
- * A sophisticated facade EntityManager that automatically routes operations to the 
+ *
+ * A sophisticated facade EntityManager that automatically routes operations to the
  * appropriate EntityManager (central or tenant) based on entity type and tenant context.
- * 
+ *
+ * @internal This class is not part of the public API and may change without notice.
+ *
  * This class implements the EntityManagerInterface and provides transparent routing
  * of database operations, ensuring that:
  * - Central entities (like Tenant, DomainEntity) are always routed to the central database
  * - Tenant entities are routed to the current tenant's database when a tenant context exists
  * - Database connections are automatically managed and switched as needed
  * - Transaction handling works across both central and tenant databases
- * 
+ *
  * Key Features:
  * - Automatic entity routing based on configuration
  * - Intelligent database connection management
  * - Cross-database transaction support
  * - Performance monitoring and logging
  * - Error handling and recovery
- * 
- * @package LaravelDoctrine\Tenancy\Infrastructure\Tenancy
+ *
  * @author Laravel Doctrine Tenancy Team
+ *
  * @since 1.0.0
+ *
  * @implements EntityManagerInterface
  */
 class SmartEntityManager implements EntityManagerInterface
 {
     private EntityManager $centralEntityManager;
+
     private EntityManager $tenantEntityManager;
+
     private EntityRouter $entityRouter;
+
     private DatabaseConnectionManager $connectionManager;
 
     public function __construct(
@@ -91,6 +97,7 @@ class SmartEntityManager implements EntityManagerInterface
     {
         if ($this->tenantContext->hasCurrentTenant()) {
             $this->connectionManager->ensureTenantConnection();
+
             return $operation($this->tenantEntityManager);
         }
 
@@ -112,7 +119,7 @@ class SmartEntityManager implements EntityManagerInterface
     public function getConnection(): \Doctrine\DBAL\Connection
     {
         return $this->executeOnTenantIfAvailable(
-            fn($em) => $em->getConnection(),
+            fn ($em) => $em->getConnection(),
             $this->centralEntityManager->getConnection()
         );
     }
@@ -135,8 +142,8 @@ class SmartEntityManager implements EntityManagerInterface
     public function flush(): void
     {
         $this->executeOnBothIfTenantAvailable(
-            fn($em) => $em->getUnitOfWork()->size() > 0 ? $em->flush() : null,
-            fn($em) => $em->getUnitOfWork()->size() > 0 ? $em->flush() : null
+            fn ($em) => $em->getUnitOfWork()->size() > 0 ? $em->flush() : null,
+            fn ($em) => $em->getUnitOfWork()->size() > 0 ? $em->flush() : null
         );
     }
 
@@ -153,47 +160,46 @@ class SmartEntityManager implements EntityManagerInterface
     public function beginTransaction(): void
     {
         $this->executeOnBothIfTenantAvailable(
-            fn($em) => $em->getUnitOfWork()->size() > 0 ? $em->beginTransaction() : null,
-            fn($em) => $em->getUnitOfWork()->size() > 0 ? $em->beginTransaction() : null
+            fn ($em) => $em->getUnitOfWork()->size() > 0 ? $em->beginTransaction() : null,
+            fn ($em) => $em->getUnitOfWork()->size() > 0 ? $em->beginTransaction() : null
         );
     }
 
     public function commit(): void
     {
         $this->executeOnBothIfTenantAvailable(
-            fn($em) => $em->getConnection()->isTransactionActive() ? $em->commit() : null,
-            fn($em) => $em->getConnection()->isTransactionActive() ? $em->commit() : null
+            fn ($em) => $em->getConnection()->isTransactionActive() ? $em->commit() : null,
+            fn ($em) => $em->getConnection()->isTransactionActive() ? $em->commit() : null
         );
     }
 
     public function rollback(): void
     {
         $this->executeOnBothIfTenantAvailable(
-            fn($em) => $em->getConnection()->isTransactionActive() ? $em->rollback() : null,
-            fn($em) => $em->getConnection()->isTransactionActive() ? $em->rollback() : null
+            fn ($em) => $em->getConnection()->isTransactionActive() ? $em->rollback() : null,
+            fn ($em) => $em->getConnection()->isTransactionActive() ? $em->rollback() : null
         );
     }
 
     public function wrapInTransaction(callable $func): mixed
     {
         $startTime = microtime(true);
-        
+
         try {
             $this->centralEntityManager->beginTransaction();
-            
+
             if ($this->tenantContext->hasCurrentTenant()) {
                 $this->connectionManager->ensureTenantConnection();
                 $this->tenantEntityManager->beginTransaction();
             }
 
             $result = $func($this->centralEntityManager, $this->tenantEntityManager);
-            
+
             $this->centralEntityManager->commit();
             if ($this->tenantContext->hasCurrentTenant()) {
                 $this->tenantEntityManager->commit();
             }
 
-            
             return $result;
         } catch (\Exception $e) {
             $this->centralEntityManager->rollback();
@@ -239,7 +245,7 @@ class SmartEntityManager implements EntityManagerInterface
     public function getCache(): ?\Doctrine\ORM\Cache
     {
         return $this->executeOnTenantIfAvailable(
-            fn($em) => $em->getCache(),
+            fn ($em) => $em->getCache(),
             $this->centralEntityManager->getCache()
         );
     }
@@ -268,7 +274,7 @@ class SmartEntityManager implements EntityManagerInterface
     public function createQuery($dql = ''): \Doctrine\ORM\Query
     {
         return $this->executeOnTenantIfAvailable(
-            fn($em) => $em->createQuery($dql),
+            fn ($em) => $em->createQuery($dql),
             $this->centralEntityManager->createQuery($dql)
         );
     }
@@ -276,7 +282,7 @@ class SmartEntityManager implements EntityManagerInterface
     public function createQueryBuilder(): \Doctrine\ORM\QueryBuilder
     {
         return $this->executeOnTenantIfAvailable(
-            fn($em) => $em->createQueryBuilder(),
+            fn ($em) => $em->createQueryBuilder(),
             $this->centralEntityManager->createQueryBuilder()
         );
     }
@@ -284,7 +290,7 @@ class SmartEntityManager implements EntityManagerInterface
     public function createNativeQuery($sql, \Doctrine\ORM\Query\ResultSetMapping $rsm): \Doctrine\ORM\NativeQuery
     {
         return $this->executeOnTenantIfAvailable(
-            fn($em) => $em->createNativeQuery($sql, $rsm),
+            fn ($em) => $em->createNativeQuery($sql, $rsm),
             $this->centralEntityManager->createNativeQuery($sql, $rsm)
         );
     }
@@ -334,8 +340,8 @@ class SmartEntityManager implements EntityManagerInterface
     public function clear(): void
     {
         $this->executeOnBothIfTenantAvailable(
-            fn($em) => $em->clear(),
-            fn($em) => $em->clear()
+            fn ($em) => $em->clear(),
+            fn ($em) => $em->clear()
         );
     }
 
@@ -362,8 +368,8 @@ class SmartEntityManager implements EntityManagerInterface
     public function close(): void
     {
         $this->executeOnBothIfTenantAvailable(
-            fn($em) => $em->close(),
-            fn($em) => $em->close()
+            fn ($em) => $em->close(),
+            fn ($em) => $em->close()
         );
     }
 

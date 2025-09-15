@@ -2,8 +2,8 @@
 
 namespace LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Resolution\Contracts;
 
-use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
 use Illuminate\Http\Request;
+use LaravelDoctrine\Tenancy\Contracts\TenantIdentifier;
 
 interface TenantResolutionStrategy
 {

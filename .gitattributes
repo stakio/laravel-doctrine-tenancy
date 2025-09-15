@@ -17,6 +17,9 @@ README.md text
 *.yml text
 *.yaml text
 
+# JSON files
+*.json text
+
 # Export ignore rules
 .gitattributes export-ignore
 .gitignore export-ignore
@@ -30,6 +33,7 @@ package.json export-ignore
 # Test files
 tests/ export-ignore
 phpunit.xml export-ignore
+.phpunit.result.cache export-ignore
 
 # Documentation files
 *.md export-ignore
@@ -43,3 +47,10 @@ examples/ export-ignore
 # OS files
 .DS_Store export-ignore
 Thumbs.db export-ignore
+
+# Log files
+*.log export-ignore
+
+# Temporary files
+*.tmp export-ignore
+*.temp export-ignore

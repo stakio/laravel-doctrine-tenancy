@@ -2,27 +2,30 @@
 
 namespace LaravelDoctrine\Tenancy\Tests\Feature\EntityRouting;
 
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\EntityRouting\EntityRouter;
+use Doctrine\ORM\EntityManager;
 use LaravelDoctrine\Tenancy\Contracts\TenantContextInterface;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\EntityRouting\EntityRouter;
 use LaravelDoctrine\Tenancy\Tests\TestCase;
-use Doctrine\ORM\EntityManager;
-use Mockery;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class EntityRouterTest extends TestCase
 {
     private EntityRouter $entityRouter;
-    private TenantContextInterface $tenantContext;
-    private EntityManager $centralEntityManager;
-    private EntityManager $tenantEntityManager;
+
+    private TenantContextInterface&MockObject $tenantContext;
+
+    private EntityManager&MockObject $centralEntityManager;
+
+    private EntityManager&MockObject $tenantEntityManager;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $this->tenantContext = Mockery::mock(TenantContextInterface::class);
-        $this->centralEntityManager = Mockery::mock(EntityManager::class);
-        $this->tenantEntityManager = Mockery::mock(EntityManager::class);
+
+        $this->tenantContext = $this->createMock(TenantContextInterface::class);
+        $this->centralEntityManager = $this->createMock(EntityManager::class);
+        $this->tenantEntityManager = $this->createMock(EntityManager::class);
 
         // Mock the TenancyConfig::getEntityRouting() method
         $this->app['config']->set('tenancy.entity_routing', [
@@ -58,9 +61,9 @@ class EntityRouterTest extends TestCase
         $tenantId = TenantId::fromString('550e8400-e29b-41d4-a716-446655440000');
 
         $this->tenantContext
-            ->shouldReceive('hasCurrentTenant')
-            ->once()
-            ->andReturn(true);
+            ->expects($this->once())
+            ->method('hasCurrentTenant')
+            ->willReturn(true);
 
         $result = $this->entityRouter->getEntityManagerForClass(
             $entityClass,
@@ -76,9 +79,9 @@ class EntityRouterTest extends TestCase
         $entityClass = 'App\Entities\Patient';
 
         $this->tenantContext
-            ->shouldReceive('hasCurrentTenant')
-            ->once()
-            ->andReturn(false);
+            ->expects($this->once())
+            ->method('hasCurrentTenant')
+            ->willReturn(false);
 
         $this->expectException(\LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenancyConfigurationException::class);
         $this->expectExceptionMessage('No tenant context available for tenant entity: App\Entities\Patient');
@@ -165,11 +168,5 @@ class EntityRouterTest extends TestCase
 
         // Should not match due to leading backslash
         $this->assertSame($this->centralEntityManager, $result);
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
     }
 }

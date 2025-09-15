@@ -2,13 +2,12 @@
 
 namespace LaravelDoctrine\Tenancy\Tests\Feature\TenantResolution;
 
+use Illuminate\Http\Request;
+use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenantException;
 use LaravelDoctrine\Tenancy\Tests\TestCase;
 use LaravelDoctrine\Tenancy\Tests\Traits\TenancyTestHelpers;
-use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
-use LaravelDoctrine\Tenancy\Infrastructure\Tenancy\Exceptions\TenantException;
-use Illuminate\Http\Request;
-use Ramsey\Uuid\Uuid;
 use PHPUnit\Framework\Attributes\Test;
+use Ramsey\Uuid\Uuid;
 
 class HeaderBasedResolutionTest extends TestCase
 {

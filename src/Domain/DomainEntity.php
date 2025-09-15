@@ -2,11 +2,11 @@
 
 namespace LaravelDoctrine\Tenancy\Domain;
 
+use Doctrine\ORM\Mapping as ORM;
 use LaravelDoctrine\Tenancy\Contracts\DomainEntityInterface;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\Domain;
 use LaravelDoctrine\Tenancy\Domain\ValueObjects\TenantId;
 use Ramsey\Uuid\UuidInterface;
-use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'tenant_domains')]
@@ -49,8 +49,8 @@ class DomainEntity implements DomainEntityInterface
         $this->tenantId = $tenantId->value();
         $this->isPrimary = $isPrimary;
         $this->isActive = $isActive;
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable;
+        $this->updatedAt = new \DateTimeImmutable;
     }
 
     public function getId(): UuidInterface
